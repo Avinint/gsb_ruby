@@ -31,11 +31,17 @@ class Home::Welcome < Window
 			menu.itemAt(index).widget.setFont button_font
 			menu.itemAt(index).widget.setFlat true
 		end
+
+		user_list.connect SIGNAL :clicked do |i| 
+			UserController.new.index
+			self.hide
+		end
+
 		splash_label = Qt::Label.new
 		#font = Qt::Font.new "Helvetica", 12
 		h = splash_label.height
 		w = splash_label.width
-		image = Qt::Pixmap.new ("images/app/pic12.jpg")
+		image = Qt::Pixmap.new ("app/images/pic12.jpg")
 		image = image.scaled(w/2, h/2, Qt::KeepAspectRatio, Qt::SmoothTransformation)
 		splash_label.resize 100, 100
 		
@@ -45,9 +51,7 @@ class Home::Welcome < Window
 		#str = tr("here is my text")
 		#splash_label.text = str
 		
-    	user_list.connect SIGNAL :clicked do
-    		#log_me login_line_edit.text, password_line_edit.text
-        end
+    		
         setFixedSize 600,  240
         setWindowTitle "GSB : Back office"
        

@@ -29,7 +29,6 @@ class Home::Login < Window
 	def logged login, password
 		
 		@user = Utilisateur.find_by_login login
-		puts @user unless @user.blank?
 		# object password before string password
 		@user.present? && Auth.login(@user, password)
 	end
@@ -44,9 +43,9 @@ class Home::Login < Window
 		end
 		Qt::MessageBox.new(Qt::MessageBox::Information, "gsb.fr", message).exec
 		#display_homepage @user
-		controller = HomeController.new
+		controller = HomeController.new.welcome
+		self.close
 		#$qApp.quit
-		controller.welcome
 		
 	end
 end

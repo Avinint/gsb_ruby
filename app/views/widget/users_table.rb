@@ -55,7 +55,7 @@ class Widget::UsersTable < Qt::TableWidget
 		parent.user_display.populate
 		parent.user_panel.show
 		
-		 	parent.add_portrait utilisateur.image
+		 	parent.load_file utilisateur.image
 		 
 		resizeColumnsToContents
 		parent.setFixedSize width + parent.panel_width, height + 20

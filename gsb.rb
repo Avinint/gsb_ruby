@@ -4,14 +4,13 @@ require 'active_record'
 require 'active_support/all'
 extend ActiveSupport::Autoload
 
-relative_load_paths = %w[core controllers models views factories]
+relative_load_paths = %w[core controllers models views factories].map {|path| path.prepend("app/")}
 
 ActiveSupport::Dependencies.autoload_paths += relative_load_paths
 
 class Gsb
-  
     def initialize
-    	@dbc = YAML::load(ERB.new(IO.read("database.yml")).result)
+    	@dbc = YAML::load(ERB.new(  IO.read("database.yml")).result)
     	active_db = @dbc["development"]
     	ActiveRecord::Base.establish_connection(
     		adapter:  active_db["adapter"], 
@@ -22,8 +21,7 @@ class Gsb
         
 		ActiveRecord::Base.pluralize_table_names = false
 		$screen = Qt::Application::desktop.screenGeometry
-		id = Qt::FontDatabase::addApplicationFont("fonts/RobotoSlab-Regular.ttf")
-
+		id = Qt::FontDatabase::addApplicationFont("app/fonts/RobotoSlab-Regular.ttf")
  	end
 
  	def display_login_page  
