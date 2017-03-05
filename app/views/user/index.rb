@@ -57,24 +57,25 @@ class User::Index < Window
 	end
 
 	def add_button_group
-		@user_actions  = Qt::GroupBox.new
+		user_actions = Qt::Widget.new
+		user_actions.set_fixed_size 350, 50
 		setStyleSheet("QGroupBox: {background-color: red;}")
-		@actions_layout = Qt::HBoxLayout.new @user_actions
-		@actions_layout.set_contents_margins 0, 0, 0, 0
-		@user_panel_layout.addWidget @user_actions, 1
+		@actions_layout = Qt::HBoxLayout.new user_actions
+		@actions_layout.set_contents_margins 10, 0, 0, 20
+		@user_panel_layout.addWidget user_actions, 1
 		add_edit_button
 		add_delete_button
 	end
 
 	def add_edit_button
 		edit_button = Qt::PushButton.new "modifier"
-		edit_button.resize 100, edit_button.height
+		
 		@actions_layout.addWidget edit_button
 	end
 
 	def add_delete_button
 		delete_button = Qt::PushButton.new "supprimer"
-		delete_button.resize 100, delete_button.height
+		
 		@actions_layout.addWidget delete_button
 	end
 

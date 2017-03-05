@@ -1,10 +1,7 @@
 class Widget::UserTable < Qt::TableWidget
 
-	attr_accessor :data
-
 	def initialize data
 		super()
-		@data = data
 		headers = %w(login prénom nom rôle  email téléphone adresse commune date_embauche)
 		@attributes = headers.map { |header| header.parameterize.underscore }
 		set_row_count  headers.count
@@ -13,21 +10,16 @@ class Widget::UserTable < Qt::TableWidget
 		horizontalHeader.setVisible false
 		setVerticalHeaderLabels headers
 		horizontalHeader.setResizeMode Qt::HeaderView::Stretch 
-
 		setSelectionBehavior Qt::AbstractItemView::NoSelection
-		populate
-
+		populate data
 	end
 
-	def populate 	
+	def populate data
 		@attributes.each_with_index do |row, index|
-			value = @data.send(row).to_s
+			value = data.send(row).to_s
 			item = Qt::TableWidgetItem.new value
 			item.setFlags(Qt::ItemIsEnabled )
 			setItem(index, 0, item)
-			#@table.connect(SIGNAL(pressed (const QModelIndex &))) { puts @table.currentItem.column}
-  			#$qApp.connect(label, SIGNAL('clicked()'),  $qApp, SLOT('quit'))
-  			#label.clicked.connect {|index|}
 		end
 	end
 
