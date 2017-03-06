@@ -32,7 +32,7 @@ class Home::Welcome < Window
 			menu.itemAt(index).widget.setFlat true
 		end
 
-		user_list.connect SIGNAL :clicked do |i| 
+		user_list.connect SIGNAL :clicked do
 			UserController.new.index
 			self.hide
 		end

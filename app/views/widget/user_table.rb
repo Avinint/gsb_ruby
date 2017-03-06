@@ -1,6 +1,6 @@
 class Widget::UserTable < Qt::TableWidget
 
-	def initialize data
+	def initialize user
 		super()
 		headers = %w(login prénom nom rôle  email téléphone adresse commune date_embauche)
 		@attributes = headers.map { |header| header.parameterize.underscore }
@@ -11,13 +11,13 @@ class Widget::UserTable < Qt::TableWidget
 		setVerticalHeaderLabels headers
 		horizontalHeader.setResizeMode Qt::HeaderView::Stretch 
 		setSelectionBehavior Qt::AbstractItemView::NoSelection
-		populate data
+		populate user unless user.blank?
 	end
 
-	def populate data
+	def populate user
 		@attributes.each_with_index do |row, index|
-			value = data.send(row).to_s
-			item = Qt::TableWidgetItem.new value
+			value = user.send(row).to_s
+			item  = Qt::TableWidgetItem.new value
 			item.setFlags(Qt::ItemIsEnabled )
 			setItem(index, 0, item)
 		end

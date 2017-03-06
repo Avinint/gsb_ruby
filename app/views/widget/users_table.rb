@@ -2,16 +2,16 @@ class Widget::UsersTable < Qt::TableWidget
 
 	slots "mousePressEvent(event)"
 
-	def initialize rows, headers = nil
+	def initialize headers = nil
 		super()
-		@rows = rows
-		@headers = headers || rows.first.class.column_names
-		@headers.push "actions"
+		@headers = headers || parent.selected_user.class.column_names || Utilisateur.column_names
+		@headers.push "actions" if @headers.present?
 		set_content
 		set_style
 	end
 
 	def set_content
+		@rows = Utilisateur.all
 		@columns = @headers.map { |header| header.parameterize.underscore }
 		set_row_count @rows.size
 		set_column_count @headers.size 
@@ -37,7 +37,9 @@ class Widget::UsersTable < Qt::TableWidget
 
 	def populate_index column, row, row_index, col_index
 		if column != "actions"
-			set_item(row_index, col_index, Qt::TableWidgetItem.new(row.send(column).to_s))
+			item = Qt::TableWidgetItem.new(row.send(column).to_s)
+			item.setFlags(Qt::ItemIsEnabled)
+			set_item(row_index, col_index, item)
 		else
 			add_buttons row_index, col_index
 		end	
@@ -49,12 +51,12 @@ class Widget::UsersTable < Qt::TableWidget
 		editButton.connect(SIGNAL('clicked()'))  { |x, y| $qApp.quit }
 	end
 
-	def display_data utilisateur
-		parent.user_display.populate utilisateur
+	def display_data
+		parent.user_display.populate parent.selected_user
 		parent.user_panel.show
-	 	parent.load_file utilisateur.image
+	 	parent.load_file
 		resizeColumnsToContents
-		parent.setFixedSize width + parent.panel_width, height + 20
+		parent.setFixedSize width + parent.panel_width, [height + 20, 500].max
 	end
 
 	def compute_size
@@ -74,8 +76,13 @@ class Widget::UsersTable < Qt::TableWidget
 
   	def left_click event
   		index = indexAt(event.pos).row
-   		select_row(index)
-   		display_data @rows[index]
+   		select_user index
+  	end
+
+  	def select_user index
+  		select_row index
+   		parent.selected_user = @rows[index]
+   		display_data
   	end
 
   	def right_click

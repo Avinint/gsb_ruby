@@ -27,26 +27,21 @@ class Home::Login < Window
 	end
 
 	def logged login, password
-		
 		@user = Utilisateur.find_by_login login
 		# object password before string password
 		@user.present? && Auth.login(@user, password)
 	end
 
 	def log_me login, password
-
-
 		if logged login, password
-			Qt::MessageBox.new(Qt::MessageBox::Information, "gsb.fr", "Connecté").exec
-			controller = HomeController.new.welcome
-		self.close
+			message = "Connecté"
 		else
-			Qt::MessageBox.new(Qt::MessageBox::Information, "gsb.fr", "identifiants invalides").exec
+			message = "identifiants invalides"
 		end
-		
-		
-		
-		
-		
+		Qt::MessageBox.new(Qt::MessageBox::Information, "gsb.fr", message).exec
+		#display_homepage @user
+		controller = HomeController.new.welcome
+		self.close
+		#$qApp.quit
 	end
 end
