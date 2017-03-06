@@ -1,0 +1,6 @@
+source 'https://rubygems.org'
+gem 'mysql2', '~> 0.4.5'
+gem 'rspec', '~> 3.5'
+gem 'bcrypt', '~> 3.1', '>= 3.1.11'
+gem 'qtbindings', '~> 4.8', '>= 4.8.6.3'
+gem 'activerecord', '~> 5.0', '>= 5.0.2'
