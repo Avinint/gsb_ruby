@@ -25,8 +25,8 @@ class Gsb
  	end
 
  	def display_login_page  
- 		controller = UserController.new
- 		controller.index #login
+ 		controller = HomeController.new
+ 		controller.login
     end
 	
 end

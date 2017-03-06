@@ -37,15 +37,16 @@ class Home::Login < Window
 
 
 		if logged login, password
-			message = "Connecté"
-		else
-			message = "identifiants invalides"
-		end
-		Qt::MessageBox.new(Qt::MessageBox::Information, "gsb.fr", message).exec
-		#display_homepage @user
-		controller = HomeController.new.welcome
+			Qt::MessageBox.new(Qt::MessageBox::Information, "gsb.fr", "Connecté").exec
+			controller = HomeController.new.welcome
 		self.close
-		#$qApp.quit
+		else
+			Qt::MessageBox.new(Qt::MessageBox::Information, "gsb.fr", "identifiants invalides").exec
+		end
+		
+		
+		
+		
 		
 	end
 end

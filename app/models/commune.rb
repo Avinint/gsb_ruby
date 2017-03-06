@@ -2,6 +2,8 @@ class Commune < ActiveRecord::Base
 
 	has_many :utilisateurs
 	belongs_to :departement
+	
+	 self.primary_key = "id"
 
  	def departement
  		Departement.find_by_code code_postal
