@@ -44,6 +44,7 @@ class User::Index < Window
 	end
 
 	def load_file file_name
+	puts file_name
 		file_name ||= "user.jpg"		
 		image = Qt::Pixmap.new "images/avatars/#{file_name}"
 		h 	  = @user_portrait.height

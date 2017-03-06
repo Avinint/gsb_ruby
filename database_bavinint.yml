@@ -1,0 +1,6 @@
+development:
+    adapter: 'mysql2'
+    host: '172.16.0.5'
+    username: 'bavinint'
+    password: 'riveton9882'
+    database: 'gsb'
