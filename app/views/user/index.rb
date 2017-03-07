@@ -101,16 +101,22 @@ class User::Index < Window
 	end
 
 	def delete_user
-		puts "#{@selected_user} supprimé(e)"
-		previous_user = refresh_ui
+		previous_user = Utilisateur.where("id < ?", @selected_user.id).last
+		ActiveRecord::Base.connection.update "SET FOREIGN_KEY_CHECKS = 0"
 		@selected_user.destroy
-		@selected_user = previous_user
-		
+		if @selected_user.destroyed?
+			refresh_ui
+		end
+		ActiveRecord::Base.connection.update "SET FOREIGN_KEY_CHECKS = 1"
 	end
-
+	
 	def refresh_ui
 		@user_list.remove_row @user_list.current_row
-		@user_list.select_user(@user_list.current_row - 1)
-		previous_user = Utilisateur.where("id < ?", @selected_user.id).last
+		if @user_list.row_count > 0
+			@user_list.select_user(@user_list.current_row)
+		else
+			@user_panel.hide
+			setFixedSize @user_list.width + 20, @user_list.height + 20
+		end
 	end
 end

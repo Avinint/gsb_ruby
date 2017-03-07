@@ -1,7 +1,5 @@
 class Widget::UsersTable < Qt::TableWidget
 
-	slots "mousePressEvent(event)"
-
 	def initialize headers = nil
 		super()
 		@headers = headers || parent.selected_user.class.column_names || Utilisateur.column_names
@@ -76,7 +74,7 @@ class Widget::UsersTable < Qt::TableWidget
 
   	def left_click event
   		index = indexAt(event.pos).row
-   		select_user index
+   		select_user index if index > -1
   	end
 
   	def select_user index
@@ -90,4 +88,9 @@ class Widget::UsersTable < Qt::TableWidget
 		parent.setFixedSize width + 20, height + 20
 		parent.user_panel.hide
   	end
+	
+	def remove_row index
+		super
+		@rows.reload
+	end
 end

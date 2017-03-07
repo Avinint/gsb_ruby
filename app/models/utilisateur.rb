@@ -5,7 +5,7 @@ class Utilisateur < ActiveRecord::Base
 
 	belongs_to :commune
 	belongs_to :role
-
+	
     def initialize 
         super
  	end
