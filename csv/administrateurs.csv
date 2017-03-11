@@ -1,0 +1,4 @@
+"nom";"prenom";"login";"mdp";"adresse";"cp";"commune";"date_embauche";"email";"role";"telephone"
+"Avinint";"Bruno";"bruno";"1234";"186 rue de l'ouest";43330;"St Ferreol d auroure";01/09/2003;"avinint@hotmail.com";"administrateur";"0672785124"
+"Zeghouani";"Haitem";"shinta";"riveton";"1 rue du 22 octobre";42100;"St Etienne";01/07/2010;"shinta42@hotmail.com";"administrateur";"0628571534"
+"Duport";"Thomas";"tom";"1234";"Les Sauvageons";43110;"Aurec sur loire";01/04/2016;"thomas.duport1@gmail.com";"administrateur";"0622574897"

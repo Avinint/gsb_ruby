@@ -23,10 +23,10 @@ class Home::Welcome < Window
 
 		user_list 	= Qt::PushButton.new 'Liste utilisateurs'.upcase
 		add_user 	= Qt::PushButton.new 'Ajouter'.upcase
-		import_user = Qt::PushButton.new 'Importer'.upcase
+		import_users = Qt::PushButton.new 'Importer'.upcase
 		menu.addWidget user_list, 0, Qt::AlignTop
 		menu.addWidget add_user, 0, Qt::AlignTop
-		menu.addWidget import_user, 1, Qt::AlignTop
+		menu.addWidget import_users, 1, Qt::AlignTop
 		(0..menu.count - 1).each do |index|
 			menu.itemAt(index).widget.setFont button_font
 			menu.itemAt(index).widget.setFlat true
@@ -35,6 +35,14 @@ class Home::Welcome < Window
 		user_list.connect SIGNAL :clicked do
 			UserController.new.index
 			self.hide
+		end
+		add_user.connect SIGNAL :clicked do
+			UserController.new.create
+			self.hide
+		end
+
+		import_users.connect SIGNAL :clicked do
+			UserController.new.import
 		end
 
 		splash_label = Qt::Label.new

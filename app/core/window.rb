@@ -26,4 +26,8 @@ class Window < Qt::Widget
 		move x, y
  	end
 
+ 	def current_user
+    	return unless $gsb_session[:current_user].present?
+    	@current_user ||= $gsb_session[:current_user]
+  	end
 end

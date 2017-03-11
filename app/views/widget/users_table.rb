@@ -31,6 +31,7 @@ class Widget::UsersTable < Qt::TableWidget
 				populate_index column, row, row_index, col_index
 			end	
 		end
+		add_button 0, last_column
 	end
 
 	def populate_index column, row, row_index, col_index
@@ -38,15 +39,17 @@ class Widget::UsersTable < Qt::TableWidget
 			item = Qt::TableWidgetItem.new(row.send(column).to_s)
 			item.setFlags(Qt::ItemIsEnabled)
 			set_item(row_index, col_index, item)
-		else
-			add_buttons row_index, col_index
 		end	
 	end
 
-	def add_buttons x, y
-		editButton = Qt::PushButton.new "modifier"
-		setCellWidget(x, y, editButton)
-		editButton.connect(SIGNAL('clicked()'))  { |x, y| $qApp.quit }
+	def add_button x, y
+		edit_button = Qt::PushButton.new "modifier"
+		setCellWidget(x, y, edit_button)
+		edit_button.connect(SIGNAL :clicked)  { parent.display_edit_page }
+	end
+
+	def remove_button x, y
+		remove_cell_widget x, y
 	end
 
 	def display_data
@@ -78,7 +81,11 @@ class Widget::UsersTable < Qt::TableWidget
   	end
 
   	def select_user index
+  		add_button index, last_column
+  		remove_button current_row, last_column unless current_row == index
   		select_row index
+  		
+  		
    		parent.selected_user = @rows[index]
    		display_data
   	end
@@ -92,5 +99,9 @@ class Widget::UsersTable < Qt::TableWidget
 	def remove_row index
 		super
 		@rows.reload
+	end
+
+	def last_column
+		column_count - 1
 	end
 end

@@ -14,7 +14,7 @@ class Home::Login < Window
        	form.addRow tr("&Mot de passe:"), password_line_edit
         form.addRow submit
     	
-    	submit.resize 100,30
+    	submit.resize 100, 30
     	
     	submit.setToolTip "Se connecter"
     	submit.connect SIGNAL :clicked do
@@ -28,20 +28,19 @@ class Home::Login < Window
 
 	def logged login, password
 		@user = Utilisateur.find_by_login login
+		$gsb_session[:current_user] = @user
 		# object password before string password
 		@user.present? && Auth.login(@user, password)
 	end
 
 	def log_me login, password
 		if logged login, password
-			message = "Connecté"
+			message = @user.is_admin? ? "Connecté" : "Connexion non autorisé"
+			Qt::MessageBox.new(Qt::MessageBox::Information, "gsb.fr", message).exec
+			HomeController.new.welcome if @user.is_admin?
+			self.close if @user.is_admin? && logged(login, password)
 		else
-			message = "identifiants invalides"
+			Qt::MessageBox.new(Qt::MessageBox::Information, "gsb.fr", "identifiants invalides").exec
 		end
-		Qt::MessageBox.new(Qt::MessageBox::Information, "gsb.fr", message).exec
-		#display_homepage @user
-		controller = HomeController.new.welcome
-		self.close
-		#$qApp.quit
 	end
 end
