@@ -84,16 +84,17 @@ class Widget::UsersTable < Qt::TableWidget
 	
 	def display_data
 		parent.user_display.populate parent.selected_user
+		#parent.setFixedSize width + parent.panel_width + 20, [height + 100, 400].max
 		parent.user_panel.show
+		parent.user_panel.raise
 	 	parent.load_file
 		resizeColumnsToContents
-		parent.setFixedSize width + parent.panel_width + 200, [height + 100, 600].max
 	end
 
 
   	def right_click
   		parent.user_panel.resize 0, parent.user_panel.height
-		parent.setFixedSize width + 20, height + 20
+		parent.setFixedSize width + 20, [height + 100, 400].max
 		parent.user_panel.hide
   	end
 	

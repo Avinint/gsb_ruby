@@ -9,24 +9,25 @@ class User::Index < Window
 	def initialize
 		super()
 		@selected_user = Utilisateur.first 
-		@menu_layout = Qt::VBoxLayout.new self
-		layout = Qt::HBoxLayout.new
-		@menu_layout.add_layout layout
+		@layout = Qt::VBoxLayout.new self
+		@user_panel  = Qt::Widget.new 
 		add_top_menu_bar
+		
 		add_user_list
-		add_user_panel
+		
 		display_window
+		add_user_panel
 	end
 	
 	def add_top_menu_bar
-		menu_bar = Qt::MenuBar.new
-		menu_bar.setSizePolicy Qt::SizePolicy::Fixed, Qt::SizePolicy::Fixed
-		menu_bar.set_style_sheet "QMenuBar {background-color: red}"
-		@menu_layout.add_widget menu_bar
+		@menu_bar = Qt::MenuBar.new
+		#@menu_bar.setSizePolicy(Qt::SizePolicy::Fixed, Qt::SizePolicy::Fixed)
+		@menu_bar.set_style_sheet "QMenuBar {background-color: #f56a6a}"
+		@layout.add_widget @menu_bar
 		
-		@file  = menu_bar.add_menu "fichier"
-		@tools = menu_bar.add_menu "outils"
-		exit  = Qt::Action.new "fermer", self
+		@file  = @menu_bar.add_menu "fichier"
+		@tools = @menu_bar.add_menu "outils"
+		exit   = Qt::Action.new "fermer", self
 		exit.connect SIGNAL :triggered do
 			$qApp.quit
 		end
@@ -54,14 +55,16 @@ class User::Index < Window
 
 	def add_user_panel
 		@panel_width = 400
-		@user_panel  = Qt::Widget.new 
+		
+		
 		@user_panel.setFixedSize @panel_width, @user_panel.height
-		layout.addWidget @user_panel, 1, Qt::AlignTop
+		@user_panel.move geometry.x + @panel_width + 16, geometry.y
 		add_panel_parts unless @selected_user.blank?
+		@user_panel.hide
 	end
 
 	def add_panel_parts
-		@user_panel_layout = Qt::VBoxLayout.new  @user_panel
+		@user_panel_layout = Qt::VBoxLayout.new @user_panel
 		@user_panel_layout.set_contents_margins 20, 0, 0, 20
 		add_portrait
 		add_user_info
@@ -113,7 +116,6 @@ class User::Index < Window
 	end
 
 	def display_window
-		@user_panel.hide
 		resize @user_list.width, [@user_list.height, 500].max
         setWindowTitle "GSB : Gérer utilisateurs"
         show
@@ -151,4 +153,12 @@ class User::Index < Window
 			setFixedSize @user_list.width + 20, @user_list.height + 20
 		end
 	end
+
+	def closeEvent(event)
+	    @user_panel.close
+  	end
+
+  	def moveEvent(event)
+	    @user_panel.move event.pos.x + width, event.pos.y
+  	end
 end
