@@ -89,7 +89,8 @@ class User::Index < Window
 	end
 
 	def display_edit_page
-		puts "edit display"
+		UserController.new.update @selected_user
+		self.close
 	end
 
 	def confirm_delete

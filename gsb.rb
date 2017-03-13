@@ -25,9 +25,8 @@ class Gsb
  	end
 
  	def display_login_page  
- 		UserController.new.index #HomeController.new.login
+ 		HomeController.new.login
     end
-	
 end
 
 $gsb_session = {}
