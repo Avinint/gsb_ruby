@@ -45,19 +45,13 @@ class Widget::UsersTable < Qt::TableWidget
 	def add_button x, y
 		edit_button = Qt::PushButton.new "modifier"
 		setCellWidget(x, y, edit_button)
-		edit_button.connect(SIGNAL :clicked)  { parent.display_edit_page }
+		edit_button.connect SIGNAL :clicked do 
+			parent.display_edit_page
+		end
 	end
 
 	def remove_button x, y
 		remove_cell_widget x, y
-	end
-
-	def display_data
-		parent.user_display.populate parent.selected_user
-		parent.user_panel.show
-	 	parent.load_file
-		resizeColumnsToContents
-		parent.setFixedSize width + parent.panel_width, [height + 20, 500].max
 	end
 
 	def compute_size
@@ -84,11 +78,18 @@ class Widget::UsersTable < Qt::TableWidget
   		add_button index, last_column
   		remove_button current_row, last_column unless current_row == index
   		select_row index
-  		
-  		
    		parent.selected_user = @rows[index]
    		display_data
   	end
+	
+	def display_data
+		parent.user_display.populate parent.selected_user
+		parent.user_panel.show
+	 	parent.load_file
+		resizeColumnsToContents
+		parent.setFixedSize width + parent.panel_width + 200, [height + 100, 600].max
+	end
+
 
   	def right_click
   		parent.user_panel.resize 0, parent.user_panel.height

@@ -57,7 +57,7 @@ def initialize user
 				instance_variable_set("@form_#{property}", Qt::LineEdit.new)
 				label = attr.capitalize.tr("_", " ")
 				field = instance_variable_get("@form_#{property}")
-				field.set_text @user.send("#{property}") unless @user.send("#{property}").blank? || property == 'mdp'
+				field.set_text @user.send("#{property}") unless  property == 'mdp'
 			end
 			@form.addRow "&#{label} :", field		
 		end
@@ -86,8 +86,10 @@ def initialize user
 			else
 				value = instance_variable_get("@form_#{property}").text unless property == "code_postal"
 			end
+			puts @form_mdp.text.blank?
 			@user.send("#{property}=", value) unless property == :mdp && @form_mdp.text.blank? || property == "code_postal"
 		end
+		
 		@user.save
 		UserController.new.index
 		self.close

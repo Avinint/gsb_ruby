@@ -9,10 +9,41 @@ class User::Index < Window
 	def initialize
 		super()
 		@selected_user = Utilisateur.first 
-		layout = Qt::HBoxLayout.new self
+		@menu_layout = Qt::VBoxLayout.new self
+		layout = Qt::HBoxLayout.new
+		@menu_layout.add_layout layout
+		add_top_menu_bar
 		add_user_list
 		add_user_panel
 		display_window
+	end
+	
+	def add_top_menu_bar
+		menu_bar = Qt::MenuBar.new
+		menu_bar.setSizePolicy Qt::SizePolicy::Fixed, Qt::SizePolicy::Fixed
+		menu_bar.set_style_sheet "QMenuBar {background-color: red}"
+		@menu_layout.add_widget menu_bar
+		
+		@file  = menu_bar.add_menu "fichier"
+		@tools = menu_bar.add_menu "outils"
+		exit  = Qt::Action.new "fermer", self
+		exit.connect SIGNAL :triggered do
+			$qApp.quit
+		end
+		@file.add_action exit
+		add_user = Qt::Action.new "ajouter utilisateur", self
+		add_user.connect SIGNAL :triggered do
+			UserController.new.create
+			self.close
+		end
+		@tools.add_action add_user
+		import_user = Qt::Action.new "importer utilisateur", self
+		import_user.connect SIGNAL :triggered do
+			UserController.new.import
+			self.close
+		end
+		@tools.add_action import_user
+		
 	end
 
 	def add_user_list
