@@ -55,10 +55,8 @@ class User::Index < Window
 
 	def add_user_panel
 		@panel_width = 400
-		
-		
 		@user_panel.setFixedSize @panel_width, @user_panel.height
-		@user_panel.move geometry.x + @panel_width + 16, geometry.y
+		@user_panel.move geometry.x + @list_width + 20, geometry.y
 		add_panel_parts unless @selected_user.blank?
 		@user_panel.hide
 	end
