@@ -56,7 +56,6 @@ class Utilisateur < ActiveRecord::Base
  				return r == self.role.nom
  			end
  		end
-		puts self.role.nom
  		self.role.nom == role
  	end
 
@@ -78,11 +77,14 @@ class Utilisateur < ActiveRecord::Base
 	 		elsif k == 'cp'
 	 			cp = v
  			elsif k == 'commune'
- 				#Êv = Commune.find_by nom: v, code_postal: cp
- 				self.commune = v, cp
+ 				#v = Commune.find_by nom: v, code_postal: cp
+ 				set_commune v, cp
  			elsif k == 'mdp'
  				v = Utilisateur.encrypt v
  				self.mdp = v
+	 		elsif k == 'role'
+	 			role = Role.find_by_libelle v
+	 			self.role = role
 	 		else
 		 		public_send("#{k}=",v)
 	 		end
@@ -90,8 +92,8 @@ class Utilisateur < ActiveRecord::Base
  		self.role_id = 1 unless role_id.present?
  	end
 
- 	def commune= commune, cp = nil
- 		if commune.is_a? String and cp.present?
+ 	def set_commune commune, cp = nil
+ 		if commune.is_a?(String) && cp.present?
  			commune = Commune.find_by nom: commune, code_postal: cp
  		end
  		return false if !(commune.is_a? Commune)

@@ -6,12 +6,13 @@ class UserController < Controller
 		User::Index.new
 	end
 	
-	def paginate(start = 1)
-		{ list: Utilisateur.offset(start).limit(20),  count: Utilisateur.count }
+	def paginate page = 1, per_page = 20
+		nbr_page = (Utilisateur.count.to_f / per_page.to_f).ceil
+		{ list: Utilisateur.offset((page - 1) * per_page).limit(per_page), count: Utilisateur.count, nbr_page: nbr_page }
 	end
 
 	def create
-		user = Utilisateur.new
+		user = Utilisateur.new 
 		User::Create.new user
 	end
 

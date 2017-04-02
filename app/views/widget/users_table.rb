@@ -1,9 +1,12 @@
 class Widget::UsersTable < Qt::TableWidget
 
-	def initialize headers = nil, start = 13
+	attr_accessor :current_page
+	attr_reader  :nbr_page
+
+	def initialize headers = nil, page = 1
 		super()
 		@headers = headers || parent.selected_user.class.column_names || Utilisateur.column_names
-		@start = start
+		@current_page = page
 		@headers.push "actions" if @headers.present?
 		set_content
 		set_style
@@ -17,25 +20,40 @@ class Widget::UsersTable < Qt::TableWidget
 	end
 
 	def set_rows
-		@rows = UserController.new.paginate(@start)[:list]
+		pagination = UserController.new.paginate @current_page
+		@rows = pagination[:list]
+		@total_count = pagination[:count]
+		@nbr_page = pagination[:nbr_page]
+		@current_page = @nbr_page if (@current_page > @nbr_page)
+		@current_page = 1 if (@current_page < 1)
 		set_row_count @rows.size
 		populate
-		set_buttons
 	end
 
 	def set_buttons
-		first_button = Qt::PushButton.new "<<"
-		parent.pagination_buttons_layout.addWidget first_button 
-		first_button.connect SIGNAL :clicked do display_create_page end
-		prev_button = Qt::PushButton.new "<"
-		parent.pagination_buttons_layout.addWidget prev_button
-		prev_button.connect SIGNAL :clicked do display_create_page end
-		next_button = Qt::PushButton.new ">"
-		parent.pagination_buttons_layout.addWidget next_button
-		next_button.connect SIGNAL :clicked do display_create_page end
-		last_button = Qt::PushButton.new ">>"
-		parent.pagination_buttons_layout.addWidget last_button
-		last_button.connect SIGNAL :clicked do display_create_page end
+		if @current_page == 1
+			parent.first_button.hide
+			parent.prev_button.hide
+		else
+			parent.first_button.show
+			parent.prev_button.show
+		end
+		if @current_page == @nbr_page
+			parent.last_button.hide
+			parent.next_button.hide
+		else
+			parent.last_button.show
+			parent.next_button.show
+		end
+		
+	end
+
+	def set_page page
+		@current_page = page unless page > @nbr_page
+		empty
+		set_rows
+		select_user 0
+		set_buttons
 	end
 
 	def set_style
@@ -53,6 +71,12 @@ class Widget::UsersTable < Qt::TableWidget
 			end	
 		end
 		add_button 0, last_column
+	end
+
+	def empty
+		@rows.each_with_index do |row, row_index|
+			remove_row row_index
+		end
 	end
 
 	def populate_index column, row, row_index, col_index
@@ -78,9 +102,9 @@ class Widget::UsersTable < Qt::TableWidget
 	def compute_size
 		setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff)
 		setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff)
-		resizeColumnsToContents
-		resizeRowsToContents
-		setFixedSize([400, horizontalHeader.length].max, verticalHeader.length + horizontalHeader.height)
+		#resizeColumnsToContents
+		#resizeRowsToContents
+		setFixedSize([500, horizontalHeader.length + verticalHeader.width].max, verticalHeader.length + horizontalHeader.height + 10)
 	end
 
 	def mousePressEvent(event)
@@ -110,13 +134,11 @@ class Widget::UsersTable < Qt::TableWidget
 		parent.user_panel.show
 		parent.user_panel.raise
 	 	parent.load_file
-		resizeColumnsToContents
 	end
-
 
   	def right_click
   		parent.user_panel.resize 0, parent.user_panel.height
-		parent.setFixedSize width + 20, [height + 101, 580].max
+		#Êparent.setFixedSize width + 20, [height + 101, 580].max
 		parent.user_panel.hide
   	end
 	

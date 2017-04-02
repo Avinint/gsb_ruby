@@ -4,11 +4,12 @@ require 'pathname'
 class User::Index < Window
 
 	attr_reader :user_panel, :user_display, :user_list, :panel_width, :list_width
-	attr_accessor :selected_user
+	attr_accessor :selected_user, :first_button, :last_button, :prev_button, :next_button
 
 	def initialize
 		super()
 		setStyleSheet "QPushButton {background-color: yellow;}"
+		@page = 1
 		@selected_user = Utilisateur.offset(1).first 
 		@layout = Qt::VBoxLayout.new self
 		@user_panel  = Qt::Widget.new 
@@ -39,8 +40,8 @@ class User::Index < Window
 	end
 
 	def add_user_list
-		@user_list = Widget::UsersTable.new ["prénom", "nom", "rôle", "commune"]
-		layout.addWidget @user_list, 1, Qt::AlignTop
+		@user_list = Widget::UsersTable.new ["login", "prénom", "nom", "rôle", "commune"]
+		layout.addWidget @user_list, 2, Qt::AlignTop
 		@list_width = @user_list.width
 	end
 
@@ -49,21 +50,25 @@ class User::Index < Window
 		@pagination_actions.set_fixed_size @list_width, 50
 		
 		@pagination_buttons_layout = Qt::HBoxLayout.new @pagination_actions
-		@pagination_buttons_layout.set_contents_margins 10, 0, 0, 20
+		@pagination_buttons_layout.set_contents_margins 0, 0, 0, 0
 		@layout.addWidget @pagination_actions, 1, Qt::AlignTop
 		
 		@first_button = Qt::PushButton.new "<<"
 		@pagination_buttons_layout.addWidget @first_button 
-		@first_button.connect SIGNAL :clicked do display_create_page end
+		@first_button.connect SIGNAL :clicked do @user_list.set_page 1 end
+		@first_button.hide
 		@prev_button = Qt::PushButton.new "<"
 		@pagination_buttons_layout.addWidget @prev_button
-		@prev_button.connect SIGNAL :clicked do display_create_page end
+		@prev_button.connect SIGNAL :clicked do  @user_list.set_page(@user_list.current_page - 1)  end
+		@prev_button.hide
 		@next_button = Qt::PushButton.new ">"
 		@pagination_buttons_layout.addWidget @next_button
-		@next_button.connect SIGNAL :clicked do display_create_page end
+		@next_button.connect SIGNAL :clicked do @user_list.set_page(@user_list.current_page + 1)  end
+		@next_button.hide if @user_list.nbr_page == 1
 		@last_button = Qt::PushButton.new ">>"
 		@pagination_buttons_layout.addWidget @last_button
-		@last_button.connect SIGNAL :clicked do display_create_page end
+		@last_button.connect SIGNAL :clicked do @user_list.set_page @user_list.nbr_page end
+		@last_button.hide if @user_list.nbr_page == 1
 	end
 
 	def add_main_button_group
@@ -71,7 +76,7 @@ class User::Index < Window
 		@main_actions.set_fixed_size @list_width, 50
 		setStyleSheet("QGroupBox {background-color: red;}")
 		@main_buttons_layout = Qt::HBoxLayout.new @main_actions
-		@main_buttons_layout.set_contents_margins 10, 0, 0, 20
+		@main_buttons_layout.set_contents_margins 0, 0, 0, 0
 		@layout.addWidget @main_actions, 3, Qt::AlignTop
 		add_create_button
 		add_import_button
@@ -114,7 +119,7 @@ class User::Index < Window
 	end
 
 	def load_file
-		file_name = @selected_user.image || "user.jpg"
+		file_name = "user.jpg" #@selected_user.image ||
 		image = Qt::Pixmap.new "images/avatars/#{file_name}"
 		h 	  = @user_portrait.height
 		w     = @user_portrait.width
@@ -150,7 +155,7 @@ class User::Index < Window
 	end
 
 	def display_window
-		set_fixed_size @user_list.width + 20, [@user_list.height + @main_actions.height + 100, 580].max
+		set_fixed_size @user_list.width + 20, [@user_list.height + @main_actions.height + 200, 600].max
 		center_window
         setWindowTitle "GSB : Gérer utilisateurs"
         show
