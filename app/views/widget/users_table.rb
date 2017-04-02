@@ -1,20 +1,41 @@
 class Widget::UsersTable < Qt::TableWidget
 
-	def initialize headers = nil
+	def initialize headers = nil, start = 13
 		super()
 		@headers = headers || parent.selected_user.class.column_names || Utilisateur.column_names
+		@start = start
 		@headers.push "actions" if @headers.present?
 		set_content
 		set_style
 	end
 
 	def set_content
-		@rows = Utilisateur.all
 		@columns = @headers.map { |header| header.parameterize.underscore }
-		set_row_count @rows.size
 		set_column_count @headers.size 
 		setHorizontalHeaderLabels @headers
+		set_rows
+	end
+
+	def set_rows
+		@rows = UserController.new.paginate(@start)[:list]
+		set_row_count @rows.size
 		populate
+		set_buttons
+	end
+
+	def set_buttons
+		first_button = Qt::PushButton.new "<<"
+		parent.pagination_buttons_layout.addWidget first_button 
+		first_button.connect SIGNAL :clicked do display_create_page end
+		prev_button = Qt::PushButton.new "<"
+		parent.pagination_buttons_layout.addWidget prev_button
+		prev_button.connect SIGNAL :clicked do display_create_page end
+		next_button = Qt::PushButton.new ">"
+		parent.pagination_buttons_layout.addWidget next_button
+		next_button.connect SIGNAL :clicked do display_create_page end
+		last_button = Qt::PushButton.new ">>"
+		parent.pagination_buttons_layout.addWidget last_button
+		last_button.connect SIGNAL :clicked do display_create_page end
 	end
 
 	def set_style
@@ -58,7 +79,8 @@ class Widget::UsersTable < Qt::TableWidget
 		setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff)
 		setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff)
 		resizeColumnsToContents
-		setFixedSize(horizontalHeader.length, verticalHeader.length + horizontalHeader.height)
+		resizeRowsToContents
+		setFixedSize([400, horizontalHeader.length].max, verticalHeader.length + horizontalHeader.height)
 	end
 
 	def mousePressEvent(event)
@@ -94,7 +116,7 @@ class Widget::UsersTable < Qt::TableWidget
 
   	def right_click
   		parent.user_panel.resize 0, parent.user_panel.height
-		parent.setFixedSize width + 20, [height + 100, 400].max
+		parent.setFixedSize width + 20, [height + 101, 580].max
 		parent.user_panel.hide
   	end
 	
@@ -105,5 +127,9 @@ class Widget::UsersTable < Qt::TableWidget
 
 	def last_column
 		column_count - 1
+	end
+
+	def wheelEvent event 
+		return false
 	end
 end

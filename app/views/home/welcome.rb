@@ -34,15 +34,16 @@ class Home::Welcome < Window
 
 		user_list.connect SIGNAL :clicked do
 			UserController.new.index
-			self.hide
+			self.close
 		end
 		add_user.connect SIGNAL :clicked do
 			UserController.new.create
-			self.hide
+			self.close
 		end
 
 		import_users.connect SIGNAL :clicked do
 			UserController.new.import
+			self.close
 		end
 
 		splash_label = Qt::Label.new
@@ -52,8 +53,6 @@ class Home::Welcome < Window
 		image = Qt::Pixmap.new ("app/images/pic12.jpg")
 		image = image.scaled(w/2, h/2, Qt::KeepAspectRatio, Qt::SmoothTransformation)
 		splash_label.resize 100, 100
-		
-		
 		splash_label.pixmap =  image
 		splash.addWidget splash_label, 1, Qt::AlignTop
 		#str = tr("here is my text")

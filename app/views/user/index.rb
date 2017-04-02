@@ -8,49 +8,85 @@ class User::Index < Window
 
 	def initialize
 		super()
-		@selected_user = Utilisateur.first 
+		setStyleSheet "QPushButton {background-color: yellow;}"
+		@selected_user = Utilisateur.offset(1).first 
 		@layout = Qt::VBoxLayout.new self
 		@user_panel  = Qt::Widget.new 
 		add_top_menu_bar
-		
+		add_top_label
 		add_user_list
+		add_pagination_button_group
+		add_main_button_group
 		
 		display_window
 		add_user_panel
 	end
 	
 	def add_top_menu_bar
-		@menu_bar = Qt::MenuBar.new
-		#@menu_bar.setSizePolicy(Qt::SizePolicy::Fixed, Qt::SizePolicy::Fixed)
-		@menu_bar.set_style_sheet "QMenuBar {background-color: #f56a6a}"
+		@menu_bar = GSBMenuBar.new self
 		@layout.add_widget @menu_bar
+	end
+
+	def add_top_label
+		label = Qt::Label.new
+		image = Qt::Pixmap.new("app/images/background.jpg")
+		image = image.scaled(420, 50, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation)
 		
-		@file  = @menu_bar.add_menu "fichier"
-		@tools = @menu_bar.add_menu "outils"
-		exit   = Qt::Action.new "fermer", self
-		exit.connect SIGNAL :triggered do
-			$qApp.quit
-		end
-		@file.add_action exit
-		add_user = Qt::Action.new "ajouter utilisateur", self
-		add_user.connect SIGNAL :triggered do
-			UserController.new.create
-			self.close
-		end
-		@tools.add_action add_user
-		import_user = Qt::Action.new "importer utilisateur", self
-		import_user.connect SIGNAL :triggered do
-			UserController.new.import
-			self.close
-		end
-		@tools.add_action import_user
-		
+		#set_style_sheet "QLabel {background-color: green; color: white}"
+		label.pixmap = image
+		label.setAlignment Qt::AlignCenter
+		@layout.insert_widget 1, label
 	end
 
 	def add_user_list
 		@user_list = Widget::UsersTable.new ["prénom", "nom", "rôle", "commune"]
 		layout.addWidget @user_list, 1, Qt::AlignTop
 		@list_width = @user_list.width
+	end
+
+	def add_pagination_button_group
+		@pagination_actions = Qt::Widget.new
+		@pagination_actions.set_fixed_size @list_width, 50
+		
+		@pagination_buttons_layout = Qt::HBoxLayout.new @pagination_actions
+		@pagination_buttons_layout.set_contents_margins 10, 0, 0, 20
+		@layout.addWidget @pagination_actions, 1, Qt::AlignTop
+		
+		@first_button = Qt::PushButton.new "<<"
+		@pagination_buttons_layout.addWidget @first_button 
+		@first_button.connect SIGNAL :clicked do display_create_page end
+		@prev_button = Qt::PushButton.new "<"
+		@pagination_buttons_layout.addWidget @prev_button
+		@prev_button.connect SIGNAL :clicked do display_create_page end
+		@next_button = Qt::PushButton.new ">"
+		@pagination_buttons_layout.addWidget @next_button
+		@next_button.connect SIGNAL :clicked do display_create_page end
+		@last_button = Qt::PushButton.new ">>"
+		@pagination_buttons_layout.addWidget @last_button
+		@last_button.connect SIGNAL :clicked do display_create_page end
+	end
+
+	def add_main_button_group
+		@main_actions = Qt::Widget.new
+		@main_actions.set_fixed_size @list_width, 50
+		setStyleSheet("QGroupBox {background-color: red;}")
+		@main_buttons_layout = Qt::HBoxLayout.new @main_actions
+		@main_buttons_layout.set_contents_margins 10, 0, 0, 20
+		@layout.addWidget @main_actions, 3, Qt::AlignTop
+		add_create_button
+		add_import_button
+	end
+
+	def add_create_button
+		create_button = Qt::PushButton.new "Créer utilisateur"
+		create_button.connect SIGNAL :clicked do display_create_page end
+		@main_buttons_layout.addWidget create_button
+	end
+
+	def add_import_button
+		create_button = Qt::PushButton.new "Importer liste utilisateurs"
+		create_button.connect SIGNAL :clicked do display_import_page end
+		@main_buttons_layout.addWidget create_button
 	end
 
 	def add_user_panel
@@ -66,7 +102,7 @@ class User::Index < Window
 		@user_panel_layout.set_contents_margins 20, 0, 0, 20
 		add_portrait
 		add_user_info
-		add_button_group
+		add_user_button_group
 	end
 
 	def add_portrait
@@ -90,7 +126,7 @@ class User::Index < Window
 		@user_panel_layout.addWidget @user_display, 1
 	end
 
-	def add_button_group
+	def add_user_button_group
 		user_actions = Qt::Widget.new
 		user_actions.set_fixed_size 350, 50
 		setStyleSheet("QGroupBox {background-color: red;}")
@@ -114,9 +150,20 @@ class User::Index < Window
 	end
 
 	def display_window
-		resize @user_list.width, [@user_list.height, 500].max
+		set_fixed_size @user_list.width + 20, [@user_list.height + @main_actions.height + 100, 580].max
+		center_window
         setWindowTitle "GSB : Gérer utilisateurs"
         show
+	end
+
+	def display_create_page
+		UserController.new.create
+		self.close
+	end
+
+	def display_import_page
+		self.close
+		UserController.new.import
 	end
 
 	def display_edit_page
@@ -148,7 +195,7 @@ class User::Index < Window
 			@user_list.select_user(@user_list.current_row)
 		else
 			@user_panel.hide
-			setFixedSize @user_list.width + 20, @user_list.height + 20
+			setFixedSize @user_list.width + 20, @user_list.height + @main_actions.height + 20
 		end
 	end
 

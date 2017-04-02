@@ -3,9 +3,9 @@ def initialize user
 		super()
 		@user  = user
 		@roles = Role.pluck(:libelle, :nom).to_h
-		layout = Qt::VBoxLayout.new self
+		@layout = Qt::VBoxLayout.new self
 		@form  = Qt::FormLayout.new
-		layout.addLayout @form
+		@layout.addLayout @form
 		
 		@attributes = %w(login mdp email nom prénom telephone adresse code_postal commune rôle date_embauche)
 		@attributes.each do |attr|
