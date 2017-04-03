@@ -131,7 +131,7 @@ class Widget::UsersTable < Qt::TableWidget
 	def display_data
 		if parent.present?
 			parent.user_display.populate parent.selected_user
-			parent.setFixedSize width + parent.panel_width + 20, [height + 100, 400].max
+			#parent.setFixedSize width + parent.panel_width + 20, [height + 100, 400].max
 			if parent.user_panel.present?
 				parent.user_panel.show
 				parent.user_panel.raise
@@ -142,7 +142,7 @@ class Widget::UsersTable < Qt::TableWidget
 
   	def right_click
   		parent.user_panel.resize 0, parent.user_panel.height
-		#Êparent.setFixedSize width + 20, [height + 101, 580].max
+		#parent.setFixedSize width + 20, [height + 101, 580].max
 		parent.user_panel.hide
   	end
 	
