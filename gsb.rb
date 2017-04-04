@@ -30,10 +30,14 @@ class Gsb
 end
 
 $gsb_session = {}
-$qApp = Qt::Application.new ARGV
+begin
+    $qApp = Qt::Application.new ARGV
 #Qt.debug_level = Qt::DebugLevel::High
 # necessaire pour support du format jpg !!! :
 Qt::Application.instance.addLibraryPath(Qt::PLUGIN_PATH)
 gsb = Gsb.new
 gsb.display_login_page
 $qApp.exec
+rescue Exception => e
+    puts e
+end
