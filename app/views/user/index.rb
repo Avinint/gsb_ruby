@@ -3,7 +3,7 @@ require 'pathname'
 
 class User::Index < Window
 
-	attr_reader :user_panel, :user_display, :user_list, :panel_width, :list_width
+	attr_reader   :user_list, :panel_width, :list_width
 	attr_accessor :selected_user, :first_button, :last_button, :prev_button, :next_button
 
 	def initialize
@@ -12,7 +12,6 @@ class User::Index < Window
 		@page = 1
 		@selected_user = Utilisateur.offset(1).first 
 		@layout = Qt::VBoxLayout.new self
-		@user_panel  = Qt::Widget.new 
 		add_top_menu_bar
 		add_top_label
 		add_user_list
@@ -20,7 +19,6 @@ class User::Index < Window
 		add_main_button_group
 		
 		display_window
-		add_user_panel
 	end
 	
 	def add_top_menu_bar
@@ -94,66 +92,6 @@ class User::Index < Window
 		@main_buttons_layout.addWidget create_button
 	end
 
-	def add_user_panel
-		@panel_width = 400
-		@user_panel.setFixedSize @panel_width, @user_panel.height
-		@user_panel.move geometry.x + @list_width + 20, geometry.y
-		add_panel_parts unless @selected_user.blank?
-		@user_panel.hide
-	end
-
-	def add_panel_parts
-		@user_panel_layout = Qt::VBoxLayout.new @user_panel
-		@user_panel_layout.set_contents_margins 20, 0, 0, 20
-		add_portrait
-		add_user_info
-		add_user_button_group
-	end
-
-	def add_portrait
-		@user_portrait = Qt::Label.new
-		load_file
-		@user_portrait.alignment =  Qt::AlignHCenter
-		@user_portrait.setFixedSize 360, 120
-		@user_panel_layout.addWidget @user_portrait, 1, Qt::AlignAbsolute
-	end
-
-	def load_file
-		file_name = "user.jpg" #@selected_user.image ||
-		image = Qt::Pixmap.new "images/avatars/#{file_name}"
-		h 	  = @user_portrait.height
-		w     = @user_portrait.width
-		@user_portrait.pixmap = image.scaledToHeight(h, Qt::SmoothTransformation)
-	end
-
-	def add_user_info
-		@user_display = Widget::UserTable.new @selected_user
-		@user_panel_layout.addWidget @user_display, 1
-	end
-
-	def add_user_button_group
-		user_actions = Qt::Widget.new
-		user_actions.set_fixed_size 350, 50
-		setStyleSheet("QGroupBox {background-color: red;}")
-		@actions_layout = Qt::HBoxLayout.new user_actions
-		@actions_layout.set_contents_margins 10, 0, 0, 20
-		@user_panel_layout.addWidget user_actions, 1
-		add_edit_button
-		add_delete_button
-	end
-
-	def add_edit_button
-		edit_button = Qt::PushButton.new "modifier"
-		edit_button.connect SIGNAL :clicked do display_edit_page end
-		@actions_layout.addWidget edit_button
-	end
-
-	def add_delete_button
-		delete_button = Qt::PushButton.new "supprimer"
-		delete_button.connect SIGNAL :clicked do confirm_delete end
-		@actions_layout.addWidget delete_button
-	end
-
 	def display_window
 		set_fixed_size @user_list.width + 20, [@user_list.height + @main_actions.height + 200, 600].max
 		center_window
@@ -171,21 +109,4 @@ class User::Index < Window
 		UserController.new.import
 	end
 	
-	def refresh_ui
-		@user_list.remove_row @user_list.current_row
-		if @user_list.row_count > 0
-			@user_list.select_user(@user_list.current_row)
-		else
-			@user_panel.hide
-			setFixedSize @user_list.width + 20, @user_list.height + @main_actions.height + 20
-		end
-	end
-
-	def closeEvent(event)
-	    @user_panel.close
-  	end
-
-  	def moveEvent(event)
-	    @user_panel.move event.pos.x + width, event.pos.y
-  	end
 end
