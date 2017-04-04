@@ -29,6 +29,7 @@ class Gsb
     end
 end
 
+GC.disable
 $gsb_session = {}
 $qApp = Qt::Application.new ARGV
 #Qt.debug_level = Qt::DebugLevel::High
@@ -37,3 +38,4 @@ Qt::Application.instance.addLibraryPath(Qt::PLUGIN_PATH)
 gsb = Gsb.new
 gsb.display_login_page
 $qApp.exec
+GC.enable
