@@ -88,10 +88,11 @@ class Widget::UsersTable < Qt::TableWidget
 	end
 
 	def add_button x, y
-		edit_button = Qt::PushButton.new "modifier"
+		edit_button = Qt::PushButton.new "voir / éditer"
 		setCellWidget(x, y, edit_button)
 		edit_button.connect SIGNAL :clicked do 
-			parent.display_edit_page
+			UserController.new.show @rows[x]
+			parent.close
 		end
 	end
 
@@ -108,15 +109,7 @@ class Widget::UsersTable < Qt::TableWidget
 	end
 
 	def mousePressEvent(event)
-	    if event.button() == Qt::RightButton
-			right_click
-	   	elsif event.button() == Qt::LeftButton
-	   		left_click event
-		end
-  	end
-
-  	def left_click event
-  		index = indexAt(event.pos).row
+	    index = indexAt(event.pos).row
    		select_user index if index > -1
   	end
 
@@ -124,26 +117,6 @@ class Widget::UsersTable < Qt::TableWidget
   		add_button index, last_column
   		remove_button current_row, last_column unless current_row == index
   		select_row index
-   		parent.selected_user = @rows[index]
-   		display_data
-  	end
-	
-	def display_data
-		if parent.present?
-			parent.user_display.populate parent.selected_user
-			#parent.setFixedSize width + parent.panel_width + 20, [height + 100, 400].max
-			if parent.user_panel.present?
-				parent.user_panel.show
-				parent.user_panel.raise
-				#parent.load_file
-			end
-		end
-	end
-
-  	def right_click
-  		parent.user_panel.resize 0, parent.user_panel.height
-		#parent.setFixedSize width + 20, [height + 101, 580].max
-		parent.user_panel.hide
   	end
 	
 	def remove_row index

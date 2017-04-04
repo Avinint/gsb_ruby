@@ -25,11 +25,13 @@ class Gsb
  	end
 
  	def display_login_page  
+        #UserController.new.show Utilisateur.find 1
  		HomeController.new.login
     end
 end
 
 $gsb_session = {}
+
 $qApp = Qt::Application.new ARGV
 #Qt.debug_level = Qt::DebugLevel::High
 # necessaire pour support du format jpg !!! :

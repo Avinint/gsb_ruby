@@ -5,7 +5,7 @@ class Widget::UserTable < Qt::TableWidget
 		headers = %w(login prénom nom rôle  email téléphone adresse commune date_embauche)
 		@attributes = headers.map { |header| header.parameterize.underscore }
 		set_row_count  headers.count
-		setFixedSize 360, height
+		setFixedSize 360, 340
 		set_column_count 1
 		horizontalHeader.setVisible false
 		setVerticalHeaderLabels headers

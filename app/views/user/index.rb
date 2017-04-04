@@ -170,29 +170,6 @@ class User::Index < Window
 		self.close
 		UserController.new.import
 	end
-
-	def display_edit_page
-		UserController.new.update @selected_user
-		self.close
-	end
-
-	def confirm_delete
-		popup = Qt::MessageBox.new self
-		popup.window_title = 'GSB'; popup.icon = Qt::MessageBox::Critical
-		popup.text = "Voulez-vous vraiment supprimer cet utilisateur?"
-		popup.standardButtons  = Qt::MessageBox::Ok | Qt::MessageBox::Cancel
-		delete_user if popup.exec == Qt::MessageBox::Ok
-	end
-
-	def delete_user
-		previous_user = Utilisateur.where("id < ?", @selected_user.id).last
-		ActiveRecord::Base.connection.update "SET FOREIGN_KEY_CHECKS = 0"
-		@selected_user.destroy
-		if @selected_user.destroyed?
-			refresh_ui
-		end
-		ActiveRecord::Base.connection.update "SET FOREIGN_KEY_CHECKS = 1"
-	end
 	
 	def refresh_ui
 		@user_list.remove_row @user_list.current_row
