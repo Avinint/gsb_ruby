@@ -20,7 +20,7 @@ class UserController < Controller
 		User::Update.new user
 	end
 
-	def import
-		User::Import.new
+	def import parent
+		User::Import.new parent
 	end
 end

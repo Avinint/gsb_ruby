@@ -44,13 +44,12 @@ class Widget::UsersTable < Qt::TableWidget
 		else
 			parent.last_button.show
 			parent.next_button.show
-		end
-		
+		end	
 	end
 
 	def set_page page
 		@current_page = page unless page > @nbr_page
-		empty
+		empty_list
 		set_rows
 		select_user 0
 		set_buttons
@@ -73,10 +72,18 @@ class Widget::UsersTable < Qt::TableWidget
 		add_button 0, last_column
 	end
 
-	def empty
-		@rows.each_with_index do |row, row_index|
-			remove_row row_index
-		end
+	def empty_list
+		set_row_count 0
+	end
+
+	def reload_list
+		empty_list
+		@rows.reload
+		set_rows
+		setFixedSize([500, horizontalHeader.length + verticalHeader.width].max, [30 * row_count + horizontalHeader.height + 10, 800].min)
+		parent.setFixedSize(620, height + 250)
+		set_buttons
+		select_user 0
 	end
 
 	def populate_index column, row, row_index, col_index
@@ -109,13 +116,15 @@ class Widget::UsersTable < Qt::TableWidget
 
 	def mousePressEvent(event)
 	    if event.button() == Qt::RightButton
-			right_click
+			close_user_panel unless row_count == 0
 	   	elsif event.button() == Qt::LeftButton
-	   		left_click event
+	   		select_action event
+	   		display_data unless row_count == 0
 		end
   	end
 
-  	def left_click event
+  	def select_action event
+  		puts parent.height
   		index = indexAt(event.pos).row
    		select_user index if index > -1
   	end
@@ -125,7 +134,7 @@ class Widget::UsersTable < Qt::TableWidget
   		remove_button current_row, last_column unless current_row == index
   		select_row index
    		parent.selected_user = @rows[index]
-   		display_data
+   		
   	end
 	
 	def display_data
@@ -135,12 +144,12 @@ class Widget::UsersTable < Qt::TableWidget
 			if parent.user_panel.present?
 				parent.user_panel.show
 				parent.user_panel.raise
-				#parent.load_file
+				parent.load_file
 			end
 		end
 	end
 
-  	def right_click
+  	def close_user_panel
   		parent.user_panel.resize 0, parent.user_panel.height
 		#parent.setFixedSize width + 20, [height + 101, 580].max
 		parent.user_panel.hide

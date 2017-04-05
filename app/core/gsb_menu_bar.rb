@@ -11,7 +11,7 @@ class GSBMenuBar < Qt::MenuBar
 		add_exiter
 		add_user_indexer  unless parent.class == User::Index
 		add_user_adder    unless parent.class == User::Create
-		add_user_importer unless parent.class == User::Import
+		add_user_importer unless parent.class == User::Import || parent.class == User::Create
  	end
 
  	def add_exiter
@@ -43,8 +43,7 @@ class GSBMenuBar < Qt::MenuBar
  	def add_user_importer
  		import_user = Qt::Action.new "importer utilisateur", parent
 		import_user.connect SIGNAL :triggered do
-			parent.close
-			UserController.new.import
+			UserController.new.import parent
 		end
 		@tools.add_action import_user
 		

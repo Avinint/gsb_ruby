@@ -82,7 +82,7 @@ class Utilisateur < ActiveRecord::Base
  			elsif k == 'mdp'
  				v = Utilisateur.encrypt v
  				self.mdp = v
-	 		elsif k == 'role'
+	 		elsif k == :role
 	 			role = Role.find_by_libelle v
 	 			self.role = role
 	 		else

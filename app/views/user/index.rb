@@ -3,16 +3,17 @@ require 'pathname'
 
 class User::Index < Window
 
-	attr_reader :user_panel, :user_display, :user_list, :panel_width, :list_width
-	attr_accessor :selected_user, :first_button, :last_button, :prev_button, :next_button
+	attr_reader :user_panel, :user_display, :panel_width, :list_width
+	attr_accessor :user_list, :selected_user, :first_button, :last_button, :prev_button, :next_button
 
 	def initialize
 		super()
-		setStyleSheet "QPushButton {background-color: yellow;}"
+		
 		@page = 1
 		@selected_user = Utilisateur.offset(1).first 
 		@layout = Qt::VBoxLayout.new self
 		@user_panel  = Qt::Widget.new 
+		@user_panel.set_style_sheet "QPushButton{height: 30px;}"
 		add_top_menu_bar
 		add_top_label
 		add_user_list
@@ -74,7 +75,6 @@ class User::Index < Window
 	def add_main_button_group
 		@main_actions = Qt::Widget.new
 		@main_actions.set_fixed_size @list_width, 50
-		setStyleSheet("QGroupBox {background-color: red;}")
 		@main_buttons_layout = Qt::HBoxLayout.new @main_actions
 		@main_buttons_layout.set_contents_margins 0, 0, 0, 0
 		@layout.addWidget @main_actions, 3, Qt::AlignTop
@@ -96,7 +96,7 @@ class User::Index < Window
 
 	def add_user_panel
 		@panel_width = 400
-		@user_panel.setFixedSize @panel_width, @user_panel.height
+		@user_panel.setFixedSize @panel_width, 540
 		@user_panel.move geometry.x + @list_width + 20, geometry.y
 		add_panel_parts unless @selected_user.blank?
 		@user_panel.hide
@@ -104,7 +104,8 @@ class User::Index < Window
 
 	def add_panel_parts
 		@user_panel_layout = Qt::VBoxLayout.new @user_panel
-		@user_panel_layout.set_contents_margins 20, 0, 0, 20
+		@user_panel_layout.set_contents_margins 20, 0, 20, 0
+		@user_panel_layout.set_spacing 2
 		add_portrait
 		add_user_info
 		add_user_button_group
@@ -113,16 +114,16 @@ class User::Index < Window
 	def add_portrait
 		@user_portrait = Qt::Label.new
 		load_file
-		@user_portrait.alignment =  Qt::AlignHCenter
 		@user_portrait.setFixedSize 360, 120
-		@user_panel_layout.addWidget @user_portrait, 1, Qt::AlignAbsolute
+		@user_portrait.alignment = Qt::AlignCenter
+		@user_panel_layout.addWidget @user_portrait, 1, Qt::AlignHCenter
 	end
 
 	def load_file
-		file_name = "user.jpg" #@selected_user.image ||
+		file_name = "user.jpg"  # @selected_user.image || 
 		image = Qt::Pixmap.new "images/avatars/#{file_name}"
 		h 	  = @user_portrait.height
-		w     = @user_portrait.width
+		w     = @user_portrait.height
 		@user_portrait.pixmap = image.scaledToHeight(h, Qt::SmoothTransformation)
 	end
 
@@ -133,10 +134,9 @@ class User::Index < Window
 
 	def add_user_button_group
 		user_actions = Qt::Widget.new
-		user_actions.set_fixed_size 350, 50
-		setStyleSheet("QGroupBox {background-color: red;}")
+		user_actions.set_fixed_size 360, 35
 		@actions_layout = Qt::HBoxLayout.new user_actions
-		@actions_layout.set_contents_margins 10, 0, 0, 20
+		@actions_layout.set_contents_margins 5, 0, 5, 0
 		@user_panel_layout.addWidget user_actions, 1
 		add_edit_button
 		add_delete_button
@@ -144,6 +144,7 @@ class User::Index < Window
 
 	def add_edit_button
 		edit_button = Qt::PushButton.new "modifier"
+
 		edit_button.connect SIGNAL :clicked do display_edit_page end
 		@actions_layout.addWidget edit_button
 	end
@@ -167,8 +168,7 @@ class User::Index < Window
 	end
 
 	def display_import_page
-		self.close
-		UserController.new.import
+		UserController.new.import self
 	end
 
 	def display_edit_page
