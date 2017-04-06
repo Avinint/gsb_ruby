@@ -60,6 +60,8 @@ class Widget::UsersTable < Qt::TableWidget
 		verticalHeader.width = 0
 		setSelectionBehavior Qt::AbstractItemView::SelectRows
 		setSelectionMode Qt::AbstractItemView::SingleSelection
+		setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff)
+		setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff)
 		compute_size
 	end
 
@@ -80,8 +82,8 @@ class Widget::UsersTable < Qt::TableWidget
 		empty_list
 		@rows.reload
 		set_rows
-		setFixedSize([500, horizontalHeader.length + verticalHeader.width].max, [30 * row_count + horizontalHeader.height + 10, 800].min)
-		parent.setFixedSize(620, height + 250)
+		compute_size
+		parent.setFixedSize(620, height + 270)
 		set_buttons
 		select_user 0
 	end
@@ -107,11 +109,9 @@ class Widget::UsersTable < Qt::TableWidget
 	end
 
 	def compute_size
-		setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff)
-		setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff)
 		#resizeColumnsToContents
 		#resizeRowsToContents
-		setFixedSize([500, horizontalHeader.length + verticalHeader.width].max, verticalHeader.length + horizontalHeader.height + 10)
+		setFixedSize [500, horizontalHeader.length + verticalHeader.width].max, [30 * row_count + horizontalHeader.height + 10, $gsb_session[:per_page] * 40].min
 	end
 
 	def mousePressEvent(event)
@@ -124,7 +124,6 @@ class Widget::UsersTable < Qt::TableWidget
   	end
 
   	def select_action event
-  		puts parent.height
   		index = indexAt(event.pos).row
    		select_user index if index > -1
   	end
@@ -134,7 +133,6 @@ class Widget::UsersTable < Qt::TableWidget
   		remove_button current_row, last_column unless current_row == index
   		select_row index
    		parent.selected_user = @rows[index]
-   		
   	end
 	
 	def display_data

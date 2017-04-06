@@ -9,6 +9,7 @@ class GSBMenuBar < Qt::MenuBar
 		@tools = add_menu "outils"
 		
 		add_exiter
+		add_disconnecter
 		add_user_indexer  unless parent.class == User::Index
 		add_user_adder    unless parent.class == User::Create
 		add_user_importer unless parent.class == User::Import || parent.class == User::Create
@@ -20,6 +21,16 @@ class GSBMenuBar < Qt::MenuBar
 			$qApp.quit
 		end
 		@file.add_action exit
+ 	end
+
+ 	def add_disconnecter
+ 		logout = Qt::Action.new "Se déconnecter", parent
+ 		logout.connect SIGNAL :triggered do
+			Auth.logout
+			HomeController.new.login
+			parent.close
+ 		end
+ 		@file.add_action logout
  	end
 
  	def add_user_indexer

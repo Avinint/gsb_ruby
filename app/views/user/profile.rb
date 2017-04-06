@@ -29,13 +29,11 @@ class User::Index < Window
 		@layout.add_widget @menu_bar
 	end
 
-
 	def add_top_label
 		label = Qt::Label.new
 		image = Qt::Pixmap.new("app/images/background.jpg")
 		image = image.scaled(600, 50, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation)
-		
-		#set_style_sheet "QLabel {background-color: green; color: white}"
+				#set_style_sheet "QLabel {background-color: green; color: white}"
 		label.pixmap = image
 		label.setAlignment Qt::AlignCenter
 		@layout.insert_widget 1, label

@@ -10,4 +10,10 @@ class Auth
 	def self.authenticate
 		$gsb_session[:current_user] = @user
 	end
+
+	def self.logout
+		$gsb_session[:current_user].token = nil
+		#$gsb_session[:current_user].save
+		$gsb_session[:current_user] = nil
+	end
 end
