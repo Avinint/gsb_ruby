@@ -3,7 +3,7 @@ require 'Qt'
 class Home::Login < Window
 	def initialize
 		super
-
+		@return_key_on = true
 		font = Qt::Font.new "Roboto", 11, Qt::Font::Light
 		font.setLetterSpacing(Qt::Font::PercentageSpacing, 99)
 		
@@ -15,8 +15,6 @@ class Home::Login < Window
 		#form_frame.set_style_sheet "background-color:red"
 		set_style_sheet "#main_window{background-image: url(app/images/background_2.jpg); background-repeat: no-repeat;}
 		QWidget#form_frame QLabel{color: white;} QWidget#submit{height: 50; font-size: 12px} QLineEdit{height: 50}"
-		
-
 		#set_style_sheet "QLabel {color: red;}"
 		logo_image = Qt::Pixmap.new("app/images/logo_login.png")
 		logo = Qt::Label.new
@@ -31,25 +29,26 @@ class Home::Login < Window
 		layout.add_spacing 10
 		layout.add_widget logo, 2, Qt::AlignHCenter
 		layout.add_widget form_frame, 3, Qt::AlignLeft
-   		login_line_edit    = Qt::LineEdit.new
-   		password_line_edit = Qt::LineEdit.new
-   		password_line_edit.setEchoMode Qt::LineEdit::Password
+   		@login_line_edit    = Qt::LineEdit.new
+   		@password_line_edit = Qt::LineEdit.new
+   		@password_line_edit.setEchoMode Qt::LineEdit::Password
    		
-   		submit = Qt::PushButton.new 'connexion'
-   		submit.set_font font
+   		@submit = Qt::PushButton.new 'connexion'
+   		@submit.set_font font
    		login_label = Qt::Label.new "identifiant :"
    		password_label = Qt::Label.new "mot de passe :"
    		
-		form.addRow login_label , login_line_edit
-       	form.addRow password_label, password_line_edit
+		form.addRow login_label , @login_line_edit
+       	form.addRow password_label, @password_line_edit
 
-    	submit.set_object_name "submit"
-    	submit.set_style_sheet "margin-left: 0"
-    	submit.setToolTip "Se connecter"
-    	form.addRow "", submit
-    	submit.connect SIGNAL :clicked do
-    		log_me login_line_edit.text, password_line_edit.text
+    	@submit.set_object_name "submit"
+    	@submit.set_style_sheet "margin-left: 0"
+    	@submit.setToolTip "Se connecter"
+    	form.addRow "", @submit
+    	@submit.connect SIGNAL :clicked do
+    		log_me @login_line_edit.text, @password_line_edit.text
         end
+        #shortcut = Qt::Shortcut.new Qt::KeySequence.new(Qt::Key_Return), self, @submit.click
         layout.add_spacing 10
         form_frame.set_fixed_size 300, 120
        	setFixedSize 600, 250#250, 100
@@ -68,15 +67,27 @@ class Home::Login < Window
 	def log_me login, password
 		if logged login, password
 			message = @user.is_admin? ? "Connecté" : "Connecté sans accès administrateur"
+			@return_key_on = false
 			Qt::MessageBox.new(Qt::MessageBox::Information, "gsb.fr", message).exec
+			
 			if @user.is_admin?
 				UserController.new.index
 			else
 				UserController.new.profile
 			end
-			self.close if @user.is_admin? && logged(login, password)
+			self.close
 		else
-			Qt::MessageBox.new(Qt::MessageBox::Information, "gsb.fr", "identifiants invalides").exec
+			@return_key_on = false
+			msg_box = Qt::MessageBox.new(Qt::MessageBox::Information, "gsb.fr", "identifiants invalides")
+			msg_box.exec
 		end
+	end
+
+	def keyReleaseEvent event
+	 	if @return_key_on == true && event.key == Qt::Key_Return || event.key == Qt::Key_Enter
+ 			@submit.click
+ 		else
+ 			@return_key_on = true
+ 		end
 	end
 end

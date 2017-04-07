@@ -1,3 +1,5 @@
+require 'mail'
+
 class Widget::UserForm < Window
 def initialize user
 		super()
@@ -23,9 +25,7 @@ def initialize user
 				field = @form_date_embauche = Qt::CalendarWidget.new
 				field.resize 250, 250
 				label = "Date d'embauche"
-				
 				date = @user.date_embauche.present? ? Qt::Date.new(@user[:date_embauche].year, @user[:date_embauche].month, @user[:date_embauche].day) : Qt::Date.new
-
 				@form_date_embauche.setSelectedDate date 
 			elsif attr == "code_postal"
 			 	field = @form_code_postal = Qt::LineEdit.new
@@ -44,7 +44,6 @@ def initialize user
 			elsif attr == "commune"
 				@form_commune = Qt::ComboBox.new
 				label = attr.capitalize
-
 				if @user.commune.present?
 					@communes = Commune.where(code_postal: @form_code_postal.text).pluck(:nom, :id).to_h
 					@communes.map {|nom, id| @form_commune.addItem nom, Qt::Variant.new(id) }
@@ -53,11 +52,15 @@ def initialize user
 				if @user.commune.present?
 					field.set_current_index @communes.keys.find_index @user.commune.to_s
 				end
+			elsif attr == "mdp"
+				label = "Mot de passe"
+				field = @form_mdp = Qt::LineEdit.new
+				@form_mdp.setEchoMode Qt::LineEdit::Password
 			else
 				instance_variable_set("@form_#{property}", Qt::LineEdit.new)
 				label = attr.capitalize.tr("_", " ")
 				field = instance_variable_get("@form_#{property}")
-				field.set_text @user.send("#{property}") unless  property == 'mdp'
+				field.set_text @user.send("#{property}") unless property == 'mdp'
 			end
 			@form.addRow "&#{label} :", field		
 		end
@@ -89,8 +92,23 @@ def initialize user
 			@user.send("#{property}=", value) unless property == "mdp" && @form_mdp.text.blank? || property == "code_postal"
 		end
 		
+
+		creation = @user.id.blank? 
 		@user.save
+		creation ? send_mail : false
+
+ 		
+
 		UserController.new.index
 		self.close
+	end
+
+	def send_mail
+		Mail.deliver do
+	       to 'avinint@hotmail.com'
+	     from 'team.gsble@gmail.com'
+	  subject 'user created'
+	     body 'test blabla'
+		end
 	end
 end

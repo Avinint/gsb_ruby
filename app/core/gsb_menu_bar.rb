@@ -6,13 +6,15 @@ class GSBMenuBar < Qt::MenuBar
 		super()
 		#set_style_sheet "QMenuBar {background-color: #f56a6a}"
 		@file  = add_menu "fichier"
-		@tools = add_menu "outils"
+		@tools = add_menu "outils" if parent.current_user.is_admin?
 		
 		add_exiter
 		add_disconnecter
-		add_user_indexer  unless parent.class == User::Index
-		add_user_adder    unless parent.class == User::Create
-		add_user_importer unless parent.class == User::Import || parent.class == User::Create
+		if parent.current_user.is_admin?
+			add_user_indexer  unless parent.class == User::Index
+			add_user_adder    unless parent.class == User::Create
+			add_user_importer unless parent.class == User::Import || parent.class == User::Create
+		end
  	end
 
  	def add_exiter
@@ -36,8 +38,8 @@ class GSBMenuBar < Qt::MenuBar
  	def add_user_indexer
  		index_user = Qt::Action.new "afficher liste utilisateurs", parent
 		index_user.connect SIGNAL :triggered do
-			UserController.new.index
 			parent.close
+			UserController.new.index
 		end
 		@tools.add_action index_user
  	end
@@ -45,8 +47,8 @@ class GSBMenuBar < Qt::MenuBar
  	def add_user_adder
  		add_user = Qt::Action.new "ajouter utilisateur", parent
 		add_user.connect SIGNAL :triggered do
-			UserController.new.create
 			parent.close
+			UserController.new.create
 		end
 		@tools.add_action add_user
  	end

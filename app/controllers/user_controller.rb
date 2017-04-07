@@ -26,6 +26,6 @@ class UserController < Controller
 	end
 
 	def profile
-		User::profile.new current_user
+		User::Profile.new current_user
 	end
 end

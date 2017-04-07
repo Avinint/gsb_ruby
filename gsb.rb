@@ -34,6 +34,7 @@ $gsb_session = {}
 $qApp = Qt::Application.new ARGV
 icon = Qt::Icon.new "app/images/logo-sm.ico"
 $qApp.set_window_icon icon
+#$qApp.installEventFilter(KeyDispatcher.new)
 #Qt.debug_level = Qt::DebugLevel::High
 # necessaire pour support du format jpg !!! :
 Qt::Application.instance.addLibraryPath(Qt::PLUGIN_PATH)

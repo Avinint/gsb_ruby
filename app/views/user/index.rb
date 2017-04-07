@@ -164,17 +164,17 @@ class User::Index < Window
 	end
 
 	def display_create_page
-		UserController.new.create
 		self.close
+		UserController.new.create
 	end
 
 	def display_import_page
-		UserController.new.import self
+		@import_dialog = UserController.new.import self
 	end
 
 	def display_edit_page
-		UserController.new.update @selected_user
 		self.close
+		UserController.new.update @selected_user
 	end
 
 	def confirm_delete
@@ -207,6 +207,7 @@ class User::Index < Window
 
 	def closeEvent(event)
 	    @user_panel.close
+	    @import_dialog.close if @import_dialog.present?
   	end
 
   	def moveEvent(event)
