@@ -1,0 +1,8 @@
+mail:
+    address:   "smtp.gmail.com"
+    port:      587
+    domain:    'brunoa.com'
+    user_name: 'team.gsble@gmail.com'
+    password:  'riveton42'
+    password:  'plain'
+    enable_starttls_auto: true 

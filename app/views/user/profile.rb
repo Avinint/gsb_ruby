@@ -66,6 +66,6 @@ class User::Profile < Window
 	end
 
 	def display_change_pw_page
-		User::EditPassword.new self
+		User::EditPassword.new @user
 	end
 end

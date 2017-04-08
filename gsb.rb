@@ -1,4 +1,5 @@
 require 'Qt'
+require 'mail'
 require 'yaml'
 require 'active_record'
 require 'active_support/all'
@@ -10,16 +11,20 @@ ActiveSupport::Dependencies.autoload_paths += relative_load_paths
 
 class Gsb
     def initialize
-    	@dbc = YAML::load(ERB.new(  IO.read("database.yml")).result)
+    	@dbc = YAML::load(File.open(File.expand_path("database.yml", File.dirname(__FILE__))))
     	active_db = @dbc["development"]
-    	ActiveRecord::Base.establish_connection(
-    		adapter:  active_db["adapter"], 
-            database: active_db["database"],
-            host:	  active_db["host"], 
-            username: active_db["username"], 
-            password: active_db["password"])
-        
+    	ActiveRecord::Base.establish_connection(active_db)
 		ActiveRecord::Base.pluralize_table_names = false
+        options = { address:           "smtp.gmail.com",
+                    port:              587,
+                    domain:            'brunoa.com',
+                    user_name:         'team.gsble@gmail.com',
+                    password:          'riveton42',
+                    authentication:    'plain',
+                enable_starttls_auto:  true  }
+        Mail.defaults do
+            delivery_method :smtp, options
+        end
 		$screen = Qt::Application::desktop.screenGeometry
 		id = Qt::FontDatabase::addApplicationFont("app/fonts/RobotoSlab-Regular.ttf")
  	end

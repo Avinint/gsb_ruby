@@ -10,7 +10,7 @@ class User::Index < Window
 		super()
 		
 		@page = 1
-		@selected_user = Utilisateur.offset(1).first 
+		@selected_user = Utilisateur.first 
 		@layout = Qt::VBoxLayout.new self
 		@user_panel  = Qt::Widget.new 
 		@user_panel.set_style_sheet "QPushButton{height: 30px;}"
@@ -201,7 +201,6 @@ class User::Index < Window
 			@user_list.select_user(@user_list.current_row)
 		else
 			@user_panel.hide
-			setFixedSize @user_list.width + 20, @user_list.height + @main_actions.height + 20
 		end
 	end
 

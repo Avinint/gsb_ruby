@@ -4,6 +4,7 @@ class Widget::UserForm < Window
 def initialize user
 		super()
 		@user  = user
+		@create_mode = user.id.blank?
 		@roles = Role.pluck(:libelle, :nom).to_h
 		@layout = Qt::VBoxLayout.new self
 		@form  = Qt::FormLayout.new
@@ -65,7 +66,7 @@ def initialize user
 			@form.addRow "&#{label} :", field		
 		end
 
-		button_text = @user.id.blank? ? 'Créer' : "Modifier"
+		button_text = @create_mode ? 'Créer' : "Modifier"
 		submit = Qt::PushButton.new button_text
 		submit.connect SIGNAL :clicked do
     		save_user
@@ -85,30 +86,40 @@ def initialize user
 				property = "commune_id"
 				value = @form_commune.item_data(@form_commune.current_index).to_i
 			elsif property == "mdp"
+				@mdp = @form_mdp.text 
 				value = Utilisateur.encrypt @form_mdp.text 
+				
 			else
 				value = instance_variable_get("@form_#{property}").text unless property == "code_postal"
 			end
 			@user.send("#{property}=", value) unless property == "mdp" && @form_mdp.text.blank? || property == "code_postal"
 		end
 		
-
-		creation = @user.id.blank? 
 		@user.save
-		creation ? send_mail : false
-
- 		
+		send_mail @mdp if @create_mode && @mdp.present?
 
 		UserController.new.index
 		self.close
 	end
 
-	def send_mail
+	def send_mail mdp
+		user = @user
+		body_text = msg_body_text user, mdp
 		Mail.deliver do
-	       to 'avinint@hotmail.com'
-	     from 'team.gsble@gmail.com'
-	  subject 'user created'
-	     body 'test blabla'
+			charset = "UTF-8"
+		    to user.email
+		    from "team.gsble@gmail.com"
+		  	subject "Nouveau compte créé : #{user.nom_complet}"
+		    body body_text
+	    
 		end
+	end
+
+	def msg_body_text user, mdp
+		"Cher #{user.nom_complet}
+	    	Votre  super compte GSB a été créé.
+	    	Vos identifiants :
+		        Login : #{user.login}
+		        mot de passe : #{mdp}"
 	end
 end

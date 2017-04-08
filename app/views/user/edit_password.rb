@@ -1,9 +1,9 @@
 require 'Qt'
 
 class User::EditPassword < Qt::Dialog
-	def initialize parent
+	def initialize user
 		super()
-		@parent = parent
+		@user = user
 		setWindowTitle "GSB : Changer mot de passe"
 		form = Qt::FormLayout.new self
 		@password_line_edit = Qt::LineEdit.new
@@ -20,20 +20,8 @@ class User::EditPassword < Qt::Dialog
        		change_password
        	end
 
-		if self.exec == Qt::Dialog::Accepted
-   #  		file = File.read selected_files.first, encoding: "UTF-8" unless File.directory? selected_files.first
-   #  		if !file
-   #  			return false
-			# end
-			# input = Qt::TextStream.new file
-			# csv_reader = CSV.parse(file, row_sep: :auto, col_sep: ";", quote_char: '"', headers: :first_row, return_headers: false)
-			# csv_reader.each do |row|
-			# 	row = row.to_h
-			# 	row[:role] = "visiteur" if row[:role].blank?
-			# 	Utilisateur.create! row unless Utilisateur.unique_values_exist row		
-			# end
-			# @parent.user_list.reload_list
-		end
+		self.exec
+   #  	
     	self.close
 	end
 
@@ -41,8 +29,8 @@ class User::EditPassword < Qt::Dialog
 		confirmed = @password_line_edit.text == @password_confirm_edit.text
 		if confirmed
 			message = "mot de passe mis à jour" 
-			current_user.mdp = Utilisateur.encrypt @password_line_edit.text
-			current_user.save
+			@user.mdp = Utilisateur.encrypt @password_line_edit.text
+			@user.save
 		else
 			message = "Echec confirmation de mot de passe"
 		end
@@ -53,7 +41,4 @@ class User::EditPassword < Qt::Dialog
 		self.close
 	end
 
-	def current_user
-		$gsb_session[:current_user]
-	end
 end

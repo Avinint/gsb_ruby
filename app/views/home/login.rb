@@ -14,7 +14,9 @@ class Home::Login < Window
 		set_object_name "main_window"
 		#form_frame.set_style_sheet "background-color:red"
 		set_style_sheet "#main_window{background-image: url(app/images/background_2.jpg); background-repeat: no-repeat;}
-		QWidget#form_frame QLabel{color: white;} QWidget#submit{height: 50; font-size: 12px} QLineEdit{height: 50}"
+		QWidget#form_frame QLabel{color: white;} QWidget#submit{height: 60px; font-size: 14px} QLineEdit{height: 50}
+		QPushButton#reset{height: 60px; font-size: 14px;background-color :transparent; color:red; font-weight: 700}
+		"
 		#set_style_sheet "QLabel {color: red;}"
 		logo_image = Qt::Pixmap.new("app/images/logo_login.png")
 		logo = Qt::Label.new
@@ -41,15 +43,22 @@ class Home::Login < Window
 		form.addRow login_label , @login_line_edit
        	form.addRow password_label, @password_line_edit
 
+       	reset = Qt::PushButton.new 'mdp oublié'
+        reset.set_object_name "reset"
+       	reset.connect SIGNAL :clicked do
+    		display_reset_window
+        end
+
     	@submit.set_object_name "submit"
-    	@submit.set_style_sheet "margin-left: 0"
     	@submit.setToolTip "Se connecter"
-    	form.addRow "", @submit
+    	form.addRow reset, @submit
     	@submit.connect SIGNAL :clicked do
     		log_me @login_line_edit.text, @password_line_edit.text
         end
         #shortcut = Qt::Shortcut.new Qt::KeySequence.new(Qt::Key_Return), self, @submit.click
         layout.add_spacing 10
+        
+
         form_frame.set_fixed_size 300, 120
        	setFixedSize 600, 250#250, 100
        
@@ -89,5 +98,13 @@ class Home::Login < Window
  		else
  			@return_key_on = true
  		end
+	end
+
+	def display_reset_window
+		@popup = User::ResetPassword.new self
+	end
+
+	def closeEvent event 
+		@popup.close unless @popup.nil?
 	end
 end

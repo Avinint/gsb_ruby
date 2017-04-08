@@ -28,4 +28,5 @@ class UserController < Controller
 	def profile
 		User::Profile.new current_user
 	end
+
 end
