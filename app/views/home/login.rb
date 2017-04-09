@@ -6,9 +6,9 @@ class Home::Login < Window
 		@return_key_on = true
 		font = Qt::Font.new "Roboto", 11, Qt::Font::Light
 		font.setLetterSpacing(Qt::Font::PercentageSpacing, 99)
-		
-		form_frame = Qt::Widget.new
 		set_font font
+
+		form_frame = Qt::Widget.new
 		form_frame.set_object_name "form_frame"
 		form_frame.raise
 		set_object_name "main_window"

@@ -13,7 +13,7 @@ class GSBMenuBar < Qt::MenuBar
 		if parent.current_user.is_admin?
 			add_user_indexer  unless parent.class == User::Index
 			add_user_adder    unless parent.class == User::Create
-			add_user_importer unless parent.class == User::Import || parent.class == User::Create
+			add_user_importer unless parent.class == User::Import || parent.class == User::Create || parent.class == User::Update
 		end
  	end
 

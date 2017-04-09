@@ -4,8 +4,10 @@ class User::Create < Widget::UserForm
 	def initialize user
 		super
 		add_top_menu_bar
+		title = "Créer utilisateur"
+		add_header title, 400
 		add_top_label
-		setWindowTitle "GSB : Créer utilisateur"
+		setWindowTitle "GSB : " + title
 		set_fixed_size width * 2/3, height
 		center_window
     	show

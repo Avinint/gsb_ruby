@@ -11,15 +11,14 @@ class User::Index < Window
 		
 		@page = 1
 		@selected_user = Utilisateur.first 
-		@layout = Qt::VBoxLayout.new self
-		@user_panel  = Qt::Widget.new 
-		@user_panel.set_style_sheet "QPushButton{height: 30px;}"
+		@layout 	   = Qt::VBoxLayout.new self
+		@user_panel    = Window.new
 		add_top_menu_bar
+		add_header "Index utilisateurs", (width - 43)
 		add_top_label
 		add_user_list
 		add_pagination_button_group
 		add_main_button_group
-		
 		display_window
 		add_user_panel
 	end
@@ -29,7 +28,6 @@ class User::Index < Window
 		@layout.add_widget @menu_bar
 	end
 
-
 	def add_top_label
 		label = Qt::Label.new
 		image = Qt::Pixmap.new("app/images/background.jpg")
@@ -38,13 +36,14 @@ class User::Index < Window
 		#set_style_sheet "QLabel {background-color: green; color: white}"
 		label.pixmap = image
 		label.setAlignment Qt::AlignCenter
-		@layout.insert_widget 1, label
+		@layout.add_widget label
 	end
 
 	def add_user_list
 		@user_list = Widget::UsersTable.new ["login", "prénom", "nom", "rôle", "commune"]
 		layout.addWidget @user_list, 2, Qt::AlignTop
 		@list_width = @user_list.width
+		@user_list.select_row 0
 	end
 
 	def add_pagination_button_group
@@ -84,15 +83,17 @@ class User::Index < Window
 	end
 
 	def add_create_button
-		create_button = Qt::PushButton.new "Créer utilisateur"
-		create_button.connect SIGNAL :clicked do display_create_page end
-		@main_buttons_layout.addWidget create_button
+		button = Qt::PushButton.new "Creer utilisateur".upcase
+		set_button_font button
+		button.connect SIGNAL :clicked do display_create_page end
+		@main_buttons_layout.addWidget button
 	end
 
 	def add_import_button
-		create_button = Qt::PushButton.new "Importer liste utilisateurs"
-		create_button.connect SIGNAL :clicked do display_import_page end
-		@main_buttons_layout.addWidget create_button
+		button = Qt::PushButton.new "Importer liste utilisateurs".upcase
+		set_button_font button
+		button.connect SIGNAL :clicked do display_import_page end
+		@main_buttons_layout.addWidget button
 	end
 
 	def add_user_panel
@@ -100,6 +101,7 @@ class User::Index < Window
 		@user_panel.setFixedSize @panel_width, 540
 		@user_panel.move geometry.x + @list_width + 20, geometry.y
 		add_panel_parts unless @selected_user.blank?
+		@user_panel.set_window_title "GSB : Consulter profil #{@selected_user.nom_complet}"
 		@user_panel.hide
 	end
 
@@ -144,20 +146,21 @@ class User::Index < Window
 	end
 
 	def add_edit_button
-		edit_button = Qt::PushButton.new "modifier"
-
+		edit_button = Qt::PushButton.new "modifier".upcase
+		set_button_font edit_button
 		edit_button.connect SIGNAL :clicked do display_edit_page end
 		@actions_layout.addWidget edit_button
 	end
 
 	def add_delete_button
-		delete_button = Qt::PushButton.new "supprimer"
+		delete_button = Qt::PushButton.new "supprimer".upcase
+		set_button_font delete_button
 		delete_button.connect SIGNAL :clicked do confirm_delete end
 		@actions_layout.addWidget delete_button
 	end
 
 	def display_window
-		set_fixed_size @user_list.width + 20, @user_list.height + 270
+		set_fixed_size @user_list.width + 20, @user_list.height + 310
 		center_window
         setWindowTitle "GSB : Gérer utilisateurs"
         show
@@ -182,6 +185,16 @@ class User::Index < Window
 		popup.window_title = 'GSB'; popup.icon = Qt::MessageBox::Critical
 		popup.text = "Voulez-vous vraiment supprimer cet utilisateur?"
 		popup.standardButtons  = Qt::MessageBox::Ok | Qt::MessageBox::Cancel
+		popup.set_contents_margins 0,0,0,0
+		popup.set_style_sheet "QPushButton {background-color: white; color: black; 
+		height: 10px; min-width: 100px;padding: 6px 3px 6px 3px; border: 1px solid black;
+		border-radius: 0; 
+		}"
+		set_popup_font popup
+		
+		popup.findChildren(Qt::PushButton).each do |widget|
+			widget.set_flat false
+		end
 		delete_user if popup.exec == Qt::MessageBox::Ok
 	end
 

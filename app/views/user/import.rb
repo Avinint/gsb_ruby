@@ -7,7 +7,7 @@ class User::Import < Qt::FileDialog
 		@parent = parent
 		set_modal true
 		show
-		setWindowTitle "GSB : Importer utilisateur"
+		setWindowTitle "GSB : Importer liste utilisateurs"
 
 		if self.exec == Qt::Dialog::Accepted
     		file = File.read selected_files.first, encoding: "UTF-8" unless File.directory? selected_files.first

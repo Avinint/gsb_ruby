@@ -10,12 +10,17 @@ class Widget::UsersTable < Qt::TableWidget
 		@headers.push "actions" if @headers.present?
 		set_content
 		set_style
+		changed = SIGNAL("currentRowChanged(const QModelIndex &, const QModelIndex &)")
+		selection_model.connect changed do |current, previous|
+			select_user current.row, previous.row
+		end
 	end
 
 	def set_content
 		@columns = @headers.map { |header| header.parameterize.underscore }
 		set_column_count @headers.size 
 		setHorizontalHeaderLabels @headers
+		horizontal_header.setResizeMode Qt::HeaderView::Fixed
 		set_rows
 	end
 
@@ -71,7 +76,7 @@ class Widget::UsersTable < Qt::TableWidget
 				populate_index column, row, row_index, col_index
 			end	
 		end
-		add_button 0, last_column
+		add_button 0
 	end
 
 	def empty_list
@@ -83,7 +88,7 @@ class Widget::UsersTable < Qt::TableWidget
 		@rows.reload
 		set_rows
 		compute_size
-		parent.setFixedSize(620, height + 270)
+		parent.setFixedSize(620, height + 310)
 		set_buttons
 		select_user 0
 	end
@@ -91,27 +96,27 @@ class Widget::UsersTable < Qt::TableWidget
 	def populate_index column, row, row_index, col_index
 		if column != "actions"
 			item = Qt::TableWidgetItem.new(row.send(column).to_s)
-			item.setFlags(Qt::ItemIsEnabled)
+			#item.setFlags(Qt::ItemIsEnabled)
 			set_item(row_index, col_index, item)
 		end	
 	end
 
-	def add_button x, y
-		edit_button = Qt::PushButton.new "modifier"
-		setCellWidget(x, y, edit_button)
+	def add_button index
+		edit_button = Qt::PushButton.new "modifier".upcase
+		setCellWidget(index, last_column, edit_button)
 		edit_button.connect SIGNAL :clicked do 
 			parent.display_edit_page
 		end
 	end
 
-	def remove_button x, y
-		remove_cell_widget x, y
+	def remove_button index
+		remove_cell_widget index, last_column
 	end
 
 	def compute_size
 		#resizeColumnsToContents
 		#resizeRowsToContents
-		setFixedSize [500, horizontalHeader.length + verticalHeader.width].max, [30 * row_count + horizontalHeader.height + 10, $gsb_session[:per_page] * 40].min
+		setFixedSize [500, horizontalHeader.length + verticalHeader.width].max, [32 * (row_count) + horizontalHeader.height , $gsb_session[:per_page] * 40].min
 	end
 
 	def mousePressEvent(event)
@@ -125,14 +130,14 @@ class Widget::UsersTable < Qt::TableWidget
 
   	def select_action event
   		index = indexAt(event.pos).row
-   		select_user index if index > -1
+   		select_row index if index > -1
   	end
 
-  	def select_user index
-  		add_button index, last_column
-  		remove_button current_row, last_column unless current_row == index
-  		select_row index
-   		parent.selected_user = @rows[index]
+  	def select_user index, prev = -1
+  		remove_button prev unless prev == index or prev == -1
+  		select_column last_column
+  		add_button index
+   		parent.selected_user = @rows[index] 
   	end
 	
 	def display_data
@@ -140,6 +145,7 @@ class Widget::UsersTable < Qt::TableWidget
 			parent.user_display.populate parent.selected_user
 			#parent.setFixedSize width + parent.panel_width + 20, [height + 100, 400].max
 			if parent.user_panel.present?
+				parent.user_panel.set_window_title "GSB : Consulter profil #{parent.selected_user.nom_complet}"
 				parent.user_panel.show
 				parent.user_panel.raise
 				parent.load_file

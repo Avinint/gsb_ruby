@@ -15,7 +15,8 @@ class User::ResetPassword < Qt::Dialog
 
 		layout.add_widget form_box
 		@email_line_edit = Qt::LineEdit.new	
-		form.addRow "&Email", @email_line_edit
+		form.addRow Qt::Label.new "Email"
+		form.addRow  @email_line_edit
        	submit = Qt::PushButton.new "Envoyer"
        	form.addRow submit
 
@@ -29,9 +30,8 @@ class User::ResetPassword < Qt::Dialog
 		@code_line_edit = Qt::LineEdit.new	
 		recovery_form.add_row Qt::Label.new "Code récupération"
 		recovery_form.add_row  @code_line_edit
-		submit_code = Qt::PushButton.new "Envoyer"
+		submit_code = Qt::PushButton.new "Se connecter"
        	recovery_form.add_row submit_code
-
 
        	set_fixed_size 300, 250
        	show
@@ -49,6 +49,7 @@ class User::ResetPassword < Qt::Dialog
 
 	def request_reset_password email
 		user = Utilisateur.find_by_email email
+		user = Utilisateur.find_by_login email if user.blank?
 		if user.present?
 			message = "email envoyé" 
 			user.token = SecureRandom.uuid.gsub("-", "").hex
@@ -79,7 +80,7 @@ class User::ResetPassword < Qt::Dialog
 	    	
 		        Code : #{user.token}
 		        
-		    Veuillez remplir le  formulaire \"code unique\" de la fenêtre \"récupération de mot de passe\""
+		    Veuillez remplir le  formulaire \"code de récupération\" de la fenêtre \"récupération de mot de passe\""
 	end
 
 	def connect_via_code
