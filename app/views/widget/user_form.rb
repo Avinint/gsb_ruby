@@ -1,11 +1,14 @@
+require 'mail'
+
 class Widget::UserForm < Window
 def initialize user
 		super()
 		@user  = user
+		@create_mode = user.id.blank?
 		@roles = Role.pluck(:libelle, :nom).to_h
-		layout = Qt::VBoxLayout.new self
+		@layout = Qt::VBoxLayout.new self
 		@form  = Qt::FormLayout.new
-		layout.addLayout @form
+		@layout.addLayout @form
 		
 		@attributes = %w(login mdp email nom prénom telephone adresse code_postal commune rôle date_embauche)
 		@attributes.each do |attr|
@@ -23,9 +26,7 @@ def initialize user
 				field = @form_date_embauche = Qt::CalendarWidget.new
 				field.resize 250, 250
 				label = "Date d'embauche"
-				
 				date = @user.date_embauche.present? ? Qt::Date.new(@user[:date_embauche].year, @user[:date_embauche].month, @user[:date_embauche].day) : Qt::Date.new
-
 				@form_date_embauche.setSelectedDate date 
 			elsif attr == "code_postal"
 			 	field = @form_code_postal = Qt::LineEdit.new
@@ -44,7 +45,6 @@ def initialize user
 			elsif attr == "commune"
 				@form_commune = Qt::ComboBox.new
 				label = attr.capitalize
-
 				if @user.commune.present?
 					@communes = Commune.where(code_postal: @form_code_postal.text).pluck(:nom, :id).to_h
 					@communes.map {|nom, id| @form_commune.addItem nom, Qt::Variant.new(id) }
@@ -53,16 +53,20 @@ def initialize user
 				if @user.commune.present?
 					field.set_current_index @communes.keys.find_index @user.commune.to_s
 				end
+			elsif attr == "mdp"
+				label = "Mot de passe"
+				field = @form_mdp = Qt::LineEdit.new
+				@form_mdp.setEchoMode Qt::LineEdit::Password
 			else
 				instance_variable_set("@form_#{property}", Qt::LineEdit.new)
 				label = attr.capitalize.tr("_", " ")
 				field = instance_variable_get("@form_#{property}")
-				field.set_text @user.send("#{property}") unless  property == 'mdp'
+				field.set_text @user.send("#{property}") unless property == 'mdp'
 			end
 			@form.addRow "&#{label} :", field		
 		end
 
-		button_text = @user.id.blank? ? 'Créer' : "Modifier"
+		button_text = @create_mode ? 'Créer' : "Modifier"
 		submit = Qt::PushButton.new button_text
 		submit.connect SIGNAL :clicked do
     		save_user
@@ -82,7 +86,9 @@ def initialize user
 				property = "commune_id"
 				value = @form_commune.item_data(@form_commune.current_index).to_i
 			elsif property == "mdp"
+				@mdp = @form_mdp.text 
 				value = Utilisateur.encrypt @form_mdp.text 
+				
 			else
 				value = instance_variable_get("@form_#{property}").text unless property == "code_postal"
 			end
@@ -90,7 +96,30 @@ def initialize user
 		end
 		
 		@user.save
+		send_mail @mdp if @create_mode && @mdp.present?
+
 		UserController.new.index
 		self.close
+	end
+
+	def send_mail mdp
+		user = @user
+		body_text = msg_body_text user, mdp
+		Mail.deliver do
+			charset = "UTF-8"
+		    to user.email
+		    from "team.gsble@gmail.com"
+		  	subject "Nouveau compte créé : #{user.nom_complet}"
+		    body body_text
+	    
+		end
+	end
+
+	def msg_body_text user, mdp
+		"Cher #{user.nom_complet}
+	    	Votre  super compte GSB a été créé.
+	    	Vos identifiants :
+		        Login : #{user.login}
+		        mot de passe : #{mdp}"
 	end
 end

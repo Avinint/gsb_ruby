@@ -16,7 +16,7 @@ class Utilisateur < ActiveRecord::Base
     def initialize hash = nil
         super()
        populate_with_hash hash unless hash.nil?
- 	end
+	end
 
  	def self.encrypt mdp
  		hash = BCrypt::Password.create(mdp) 
@@ -56,7 +56,6 @@ class Utilisateur < ActiveRecord::Base
  				return r == self.role.nom
  			end
  		end
-		puts self.role.nom
  		self.role.nom == role
  	end
 
@@ -69,25 +68,39 @@ class Utilisateur < ActiveRecord::Base
  	end
 
  	def populate_with_hash hash
+ 		cp = ""
  		hash.each do |k,v|
- 			puts v
  			if k == login
  				self.login = v
 			elsif k == 'email'
 	 			self.email = v || "#{self.login}@gsb.fr"
-	 			puts self.email
 	 		elsif k == 'cp'
 	 			cp = v
  			elsif k == 'commune'
- 				v = Commune.find_by nom: v, code_postal: cp
- 				self.commune = v
+ 				#v = Commune.find_by nom: v, code_postal: cp
+ 				set_commune v, cp
  			elsif k == 'mdp'
  				v = Utilisateur.encrypt v
  				self.mdp = v
+	 		elsif k == :role
+	 			role = Role.find_by_libelle v
+	 			self.role = role
 	 		else
 		 		public_send("#{k}=",v)
 	 		end
  		end
  		self.role_id = 1 unless role_id.present?
+ 	end
+
+ 	def set_commune commune, cp = nil
+ 		if commune.is_a?(String) && cp.present?
+ 			commune = Commune.find_by nom: commune, code_postal: cp
+ 		end
+ 		return false if !(commune.is_a? Commune)
+ 		self.commune = commune
+ 	end
+
+ 	def self.unique_values_exist hash
+ 		Utilisateur.find_by_login(hash['login']) || Utilisateur.find_by_email(hash['email'])
  	end
 end
