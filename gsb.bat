@@ -1,5 +1,5 @@
 @echo off
-d:
+c:
 cd\
 cd ruby_projects\gsb
 ruby gsb.rb

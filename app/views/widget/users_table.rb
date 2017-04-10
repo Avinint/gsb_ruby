@@ -56,7 +56,7 @@ class Widget::UsersTable < Qt::TableWidget
 		@current_page = page unless page > @nbr_page
 		empty_list
 		set_rows
-		select_user 0
+		select_row 0
 		set_buttons
 	end
 
@@ -133,8 +133,8 @@ class Widget::UsersTable < Qt::TableWidget
    		select_row index if index > -1
   	end
 
-  	def select_user index, prev = -1
-  		remove_button prev unless prev == index or prev == -1
+  	def select_user index, prev = 0
+  		remove_button prev unless prev == index
   		select_column last_column
   		add_button index
    		parent.selected_user = @rows[index] 

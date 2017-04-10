@@ -95,13 +95,50 @@ def initialize user
 			@user.send("#{property}=", value) unless property == "mdp" && @form_mdp.text.blank? || property == "code_postal"
 		end
 		
-		@user.save
-		send_mail @mdp if @create_mode && @mdp.present?
-
-		UserController.new.index
-		self.close
+		missing_field = nil
+		
+		if @user.mdp.blank? && @create_mode
+			missing_field = "mot de passe"
+		end
+		%w(login email nom prenom commune).each do |property|
+			if @user.send("#{property}").blank?
+				missing_field = property
+				break
+			end
+		end
+		puts @user.login
+		if missing_field.blank? && test_uniques(@user.login, @user.email)
+			@user.save
+			call_message_box "Utilisateur créé : #{@user.nom_complet}"
+			send_mail @mdp if @create_mode && @mdp.present?
+			UserController.new.index
+			self.close
+		else
+			call_message_box "propriété requise : \"#{missing_field}\"" if missing_field.present?
+		end
+	end
+	
+	def test_uniques login, email
+	
+		result = Utilisateur.find_by_login login
+		result = Utilisateur.find_by_email email if result.blank?
+		puts "#{result.email} #{result.login}" if result.present?
+		call_message_box "Login et email doivent être uniques" if result.present?
+		result.blank? 
 	end
 
+	def call_message_box text
+		message = Qt::MessageBox.new self
+		message.text =  text
+		message.set_style_sheet "QPushButton {background-color: white; color: black; 
+		height: 10px; min-width: 100px;padding: 6px 3px 6px 3px; border: 1px solid black;
+		border-radius: 0; 
+		}"
+		set_popup_font message
+		message.exec
+	end
+	
+	
 	def send_mail mdp
 		user = @user
 		body_text = msg_body_text user, mdp
@@ -111,7 +148,6 @@ def initialize user
 		    from "team.gsble@gmail.com"
 		  	subject "Nouveau compte créé : #{user.nom_complet}"
 		    body body_text
-	    
 		end
 	end
 
